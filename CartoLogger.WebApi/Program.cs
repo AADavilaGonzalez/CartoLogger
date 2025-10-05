@@ -1,19 +1,37 @@
+using CartoLogger.Persistence;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+// OpenApi webapi infomation and statistics
 builder.Services.AddOpenApi();
+builder.Services.AddControllers();
+
+var connectionString = builder.Configuration.GetConnectionString("MySql");
+
+builder.Services.AddDbContext<CartoLoggerDbContext>(options => {
+    options.UseMySql(
+        connectionString,
+        ServerVersion.AutoDetect(connectionString)
+    );
+});
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Configure development endpoints (Swagger)
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.UseSwaggerUI(options =>
+        options.SwaggerEndpoint("/openapi/v1.json", "Weather Forecast")
+    );
 }
 
 app.UseHttpsRedirection();
 
+app.Run();
+
+/*<======================Demo Endpoint Included in Template (Remove Later)=====================>
 var summaries = new[]
 {
     "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
@@ -39,3 +57,4 @@ record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
 {
     public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
 }
+<============================================================================================>*/

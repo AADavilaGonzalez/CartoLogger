@@ -5,7 +5,7 @@ public static class EmailConstaints
     public const int minLength = 8; 
     public const int maxLength = 254;
 
-    public static bool IsValid(string email, out string? err)
+    public static bool IsValidEmail(string email, out string? err)
     {
         if(email.Length < minLength || email.Length > maxLength)
         {

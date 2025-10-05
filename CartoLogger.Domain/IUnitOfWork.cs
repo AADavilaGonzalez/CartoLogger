@@ -2,7 +2,7 @@ using CartoLogger.Domain.Interfaces;
 
 namespace CartoLogger.Domain;
 
-public interface IUnitOfWork : IDisposable
+public interface IUnitOfWork
 {
     public IUserRepository Users {get;}
     public IMapRepository Maps {get;}

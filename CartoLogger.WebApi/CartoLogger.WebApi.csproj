@@ -8,6 +8,12 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.9" />
+    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="9.0.6" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CartoLogger.Persistence\CartoLogger.Persistence.csproj" />
+    <ProjectReference Include="..\CartoLogger.Domain\CartoLogger.Domain.csproj" />
   </ItemGroup>
 
 </Project>

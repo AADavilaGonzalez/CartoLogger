@@ -1,11 +1,11 @@
 namespace CartoLogger.Domain.Constraints;
 
-public static class Password
+public static class PasswordConstraints
 {
     public const int minLength = 8; 
     public const int maxLength = 30;
 
-    public static bool IsValid(string password, out string? err)
+    public static bool IsValidPassword(string password, out string? err)
     {
         if(password.Length < minLength || password.Length > maxLength)
         {
@@ -24,6 +24,11 @@ public static class Password
         }
         err = null;
         return false;
+    }
+
+    public static string HashPassword(string password)
+    {
+        return "";
     }
 
 }

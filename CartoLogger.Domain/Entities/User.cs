@@ -7,7 +7,7 @@ public class User
         public const int minLength = 4;
         public const int maxLength = 30;
 
-        public static bool IsValid(string name, out string? err)
+        public static bool IsValidName(string name, out string? err)
         {
             if(name.Length < minLength || name.Length > maxLength)
             {

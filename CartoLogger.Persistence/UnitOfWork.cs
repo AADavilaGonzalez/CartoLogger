@@ -25,11 +25,4 @@ public class UnitOfWork : IUnitOfWork
         return _context.SaveChangesAsync();
     }
 
-    public void Dispose()
-    {
-        _context.Dispose();
-        //Tell GC that this object's memory has been already cleaned up
-        GC.SuppressFinalize(this);
-    }
-
 }

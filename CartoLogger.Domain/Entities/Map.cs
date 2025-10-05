@@ -7,7 +7,7 @@ public class Map
         public const int minLength = 1;
         public const int maxLength = 255;
 
-        public static bool IsValid(string name, out string? err)
+        public static bool IsValidTitle(string name, out string? err)
         {
             if(name.Length < minLength || name.Length > maxLength)
             {
@@ -24,7 +24,7 @@ public class Map
     {
         public const int maxLength = 255;
 
-        public static bool IsValid(string name, out string? err) {
+        public static bool IsValidDescription(string name, out string? err) {
             if(name.Length > maxLength) {
                 err = $"description length cannot exceed {maxLength} characters";
                 return false;

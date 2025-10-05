@@ -13,7 +13,7 @@ public class Repository<TEntity> : IRepository<TEntity>
     }
 
 
-    public Task<TEntity?> Find(int id)
+    public Task<TEntity?> GetById(int id)
     {
         return _context.Set<TEntity>().FindAsync(id).AsTask();
     }
