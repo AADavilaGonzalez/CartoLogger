@@ -45,7 +45,7 @@ public class AuthController(IUnitOfWork unitOfWork) : ControllerBase
 
 
         await _unitOfWork.Users.LoadMaps(user);
-#pragma warning disable IDE0305
+        #pragma warning disable IDE0305
         return Ok(new LoginResponse
         {
             User = new UserDto
@@ -62,7 +62,7 @@ public class AuthController(IUnitOfWork unitOfWork) : ControllerBase
                 }
             ).ToArray()
         });
-#pragma warning restore IDE0305
+        #pragma warning restore IDE0305
     }
 
     [HttpPost("signup")]

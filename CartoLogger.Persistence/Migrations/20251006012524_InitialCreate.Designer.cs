@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CartoLogger.Persistence.Migrations
 {
     [DbContext(typeof(CartoLoggerDbContext))]
-    [Migration("20251005120656_InitialCreate")]
+    [Migration("20251006012524_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -36,10 +36,10 @@ namespace CartoLogger.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<int>("MapId")
+                    b.Property<int?>("MapId")
                         .HasColumnType("int");
 
-                    b.Property<int>("UserId")
+                    b.Property<int?>("UserId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -69,7 +69,7 @@ namespace CartoLogger.Persistence.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("varchar(255)");
 
-                    b.Property<int>("UserId")
+                    b.Property<int?>("UserId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -117,14 +117,12 @@ namespace CartoLogger.Persistence.Migrations
                     b.HasOne("CartoLogger.Domain.Entities.Map", "Map")
                         .WithMany("Features")
                         .HasForeignKey("MapId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("CartoLogger.Domain.Entities.User", "User")
                         .WithMany("Features")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Map");
 
@@ -136,8 +134,7 @@ namespace CartoLogger.Persistence.Migrations
                     b.HasOne("CartoLogger.Domain.Entities.User", "User")
                         .WithMany("Maps")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("User");
                 });

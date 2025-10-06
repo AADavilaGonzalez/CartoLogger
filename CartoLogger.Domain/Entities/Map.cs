@@ -38,8 +38,8 @@ public class Map
     public required string Title {get; set;}
     public required string Description {get; set;}
     
-    public int UserId {get; private set;}
-    public required User User {get; init;}
+    public int? UserId {get; private set;}
+    public User? User {get; init;}
 
     public List<Feature> Features {get; private set;} = [];
 }
