@@ -17,13 +17,13 @@ public static class PasswordConstraints
             err = "password must both uppercase and lowercase letters";
             return false;
         }
-        if(password.Any(char.IsDigit))
+        if(!password.Any(char.IsDigit))
         {
             err = "password must contain at least one digit";
             return false;
         }
         err = null;
-        return false;
+        return true;
     }
 
     public static string HashPassword(string password)

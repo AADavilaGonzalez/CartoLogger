@@ -1,11 +1,15 @@
 using CartoLogger.Persistence;
 using Microsoft.EntityFrameworkCore;
+using CartoLogger.Domain;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
 // OpenApi webapi infomation and statistics
 builder.Services.AddOpenApi();
 builder.Services.AddControllers();
+
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>(); 
 
 var connectionString = builder.Configuration.GetConnectionString("MySql");
 
@@ -28,7 +32,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
+app.MapControllers(); 
 app.Run();
 
 /*<======================Demo Endpoint Included in Template (Remove Later)=====================>

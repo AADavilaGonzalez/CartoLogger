@@ -17,7 +17,7 @@ public class AuthController(IUnitOfWork unitOfWork) : ControllerBase
     public async Task<IActionResult> Login([FromBody] LoginRequest req)
     {
         Task<User?> task;
-        if(EmailConstaints.IsValidEmail(req.Identity, out string? emailErr))
+        if (EmailConstaints.IsValidEmail(req.Identity, out string? emailErr))
         {
             task = _unitOfWork.Users.GetByEmail(req.Identity);
         }
@@ -27,51 +27,90 @@ public class AuthController(IUnitOfWork unitOfWork) : ControllerBase
         }
 
         User? user = await task;
-        if(user is null)
+        if (user is null)
         {
-            return Unauthorized(new {
-                error =  emailErr is null ? "invalid credentials" : emailErr
+            return Unauthorized(new
+            {
+                error = emailErr is null ? "invalid credentials" : emailErr
             });
         }
 
-        if(PasswordConstraints.HashPassword(req.Password) != user.PasswordHash)
+        if (PasswordConstraints.HashPassword(req.Password) != user.PasswordHash)
         {
-            return Unauthorized(new {
+            return Unauthorized(new
+            {
                 error = "invalid credentials"
             });
         }
 
+
         await _unitOfWork.Users.LoadMaps(user);
-        #pragma warning disable IDE0305
-        return Ok(new LoginResponse{
-            User = new UserDto{
+#pragma warning disable IDE0305
+        return Ok(new LoginResponse
+        {
+            User = new UserDto
+            {
                 Id = user.Id,
                 Name = user.Name
             },
-            Maps = user.Maps.Select(m => 
-                new MapDto{
+            Maps = user.Maps.Select(m =>
+                new MapDto
+                {
                     Id = m.Id,
                     Title = m.Title,
                     Description = m.Description
                 }
             ).ToArray()
         });
-        #pragma warning restore IDE0305
+#pragma warning restore IDE0305
     }
 
-    /* 
     [HttpPost("signup")]
     public async Task<IActionResult> SignUp([FromBody] SignUpRequest req)
     {
-        //Recibir parametros de el request (name, email, password) y cerciorarse de los
-        //parametros pasados pasen las validaciones EmailConstraints.IsValidEmail y
-        //PasswordConstraints.IsValidPassword.
-        //Investigar una operacion de Hashing de contrasenas adecuada al contexto e
-        //implmentarla dentro de la funcion PasswordConstraints.HashPassword
-        //GUARGDAR CONTRASENA CUANDO YA HAYA SIDO HASHEADA
-        //user.PasswordHash = PasswordConstraints.HashPasword(req.Password)
-        //Si quieres porbar que funcione puedes acceder a la interfaz de swagger
-        //ya esta funcionando
+
+        if (!EmailConstaints.IsValidEmail(req.Email, out string? emailErr))
+        {
+            return BadRequest(new { error = emailErr ?? "Formato de correo inválido" });
+        }
+
+
+        if (!PasswordConstraints.IsValidPassword(req.Password, out string? passErr))
+        {
+            return BadRequest(new { error = passErr ?? "Formato de password inválido" });
+        }
+
+        var userByName = await _unitOfWork.Users.GetByName(req.Username);
+        if (userByName != null)
+        {
+            return Conflict(new { error = "Nombre de usuario ya está en uso" });
+        }
+
+
+        var userByEmail = await _unitOfWork.Users.GetByEmail(req.Email);
+        if (userByEmail != null)
+        {
+            return Conflict(new { error = "Correo ya registrado" });
+        }
+
+        string passwordHash = PasswordConstraints.HashPassword(req.Password);
+
+
+        var user = new User
+        {
+            Name = req.Username,
+            Email = req.Email,
+            PasswordHash = passwordHash
+        };
+
+        _unitOfWork.Users.Add(user);
+        await _unitOfWork.SaveChangesAsync();
+
+
+        return Ok(new UserDto
+        {
+            Id = user.Id,
+            Name = user.Name
+        });
     }
-    */
 }

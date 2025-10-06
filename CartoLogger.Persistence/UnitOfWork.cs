@@ -20,7 +20,7 @@ public class UnitOfWork : IUnitOfWork
         Features = new FeatureRepository(_context);
     }
 
-    public Task<int> SaveChanges()
+    public Task<int> SaveChangesAsync()
     {
         return _context.SaveChangesAsync();
     }

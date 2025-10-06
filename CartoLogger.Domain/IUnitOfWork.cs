@@ -8,5 +8,5 @@ public interface IUnitOfWork
     public IMapRepository Maps {get;}
     public IFeatureRepository Features {get;}
 
-    public Task<int> SaveChanges();
+    public Task<int> SaveChangesAsync();
 }
