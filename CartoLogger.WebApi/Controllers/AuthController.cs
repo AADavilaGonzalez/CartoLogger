@@ -35,7 +35,7 @@ public class AuthController(IUnitOfWork unitOfWork) : ControllerBase
             });
         }
 
-        if (PasswordConstraints.HashPassword(req.Password) != user.PasswordHash)
+        if (!PasswordConstraints.VerifyPassword(req.Password, user.PasswordHash))
         {
             return Unauthorized(new
             {
