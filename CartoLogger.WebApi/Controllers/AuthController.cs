@@ -8,7 +8,7 @@ using CartoLogger.WebApi.DTO.Http;
 namespace CartoLogger.WebApi.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("app/[controller]")]
 public class AuthController(IUnitOfWork unitOfWork) : ControllerBase
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;

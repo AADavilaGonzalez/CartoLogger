@@ -1,6 +1,7 @@
-namespace CartoLogger.Domain.Constraints;
-using System;
 using System.Security.Cryptography;
+
+namespace CartoLogger.Domain.Constraints;
+
 public static class PasswordConstraints
 {
     public const int minLength = 8;
@@ -33,29 +34,32 @@ public static class PasswordConstraints
         const int keySize = 32;
         const int iterations = 100000;
 
+        using var algorithm = new Rfc2898DeriveBytes(
+            password, saltSize, iterations, HashAlgorithmName.SHA256);
 
-        using (var algorithm = new Rfc2898DeriveBytes(password, saltSize, iterations, HashAlgorithmName.SHA256))
-        {
-            byte[] salt = algorithm.Salt;
-            byte[] hash = algorithm.GetBytes(keySize);
+        byte[] salt = algorithm.Salt;
+        byte[] hash = algorithm.GetBytes(keySize);
 
-            return $"{iterations}.{Convert.ToBase64String(salt)}.{Convert.ToBase64String(hash)}";
-        }
+        return $"{iterations}.{Convert.ToBase64String(salt)}.{Convert.ToBase64String(hash)}";
+        
     }
+
     public static bool VerifyPassword(string password, string hashedPassword)
     {
         var parts = hashedPassword.Split('.');
         if (parts.Length != 3)
-            throw new FormatException("Hash en formato incorrecto");
+            throw new FormatException("Unexpected hash format");
 
         int iterations = int.Parse(parts[0]);
         byte[] salt = Convert.FromBase64String(parts[1]);
         byte[] hash = Convert.FromBase64String(parts[2]);
 
-        using (var algorithm = new Rfc2898DeriveBytes(password, salt, iterations, HashAlgorithmName.SHA256))
-        {
-            byte[] hashToCompare = algorithm.GetBytes(hash.Length);
-            return CryptographicOperations.FixedTimeEquals(hash, hashToCompare);
-        }
+        using var algorithm = new Rfc2898DeriveBytes(
+            password, salt, iterations, HashAlgorithmName.SHA256);
+
+        byte[] hashToCompare = algorithm.GetBytes(hash.Length);
+
+        return CryptographicOperations.FixedTimeEquals(hash, hashToCompare);
+        
     }
 }
