@@ -8,7 +8,7 @@ using CartoLogger.WebApi.DTO.Http;
 namespace CartoLogger.WebApi.Controllers;
 
 [ApiController]
-[Route("app/[controller]")]
+[Route("api/auth")]
 public class AuthController(IUnitOfWork unitOfWork) : ControllerBase
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
@@ -31,21 +31,17 @@ public class AuthController(IUnitOfWork unitOfWork) : ControllerBase
         {
             return Unauthorized(new
             {
-                error = emailErr is null ? "invalid credentials" : emailErr
+                error = emailErr ?? "invalid credentials"
             });
         }
 
         if (!PasswordConstraints.VerifyPassword(req.Password, user.PasswordHash))
         {
-            return Unauthorized(new
-            {
-                error = "invalid credentials"
-            });
+            return Unauthorized(new { error = "invalid credentials" });
         }
 
 
         await _unitOfWork.Users.LoadMaps(user);
-        #pragma warning disable IDE0305
         return Ok(new LoginResponse
         {
             User = new UserDto
@@ -60,9 +56,8 @@ public class AuthController(IUnitOfWork unitOfWork) : ControllerBase
                     Title = m.Title,
                     Description = m.Description
                 }
-            ).ToArray()
+            )
         });
-        #pragma warning restore IDE0305
     }
 
     [HttpPost("signup")]
@@ -71,30 +66,33 @@ public class AuthController(IUnitOfWork unitOfWork) : ControllerBase
 
         if (!EmailConstaints.IsValidEmail(req.Email, out string? emailErr))
         {
-            return BadRequest(new { error = emailErr ?? "Formato de correo inválido" });
+            return BadRequest(new {
+                error = emailErr ?? "invalid email format"
+            });
         }
 
 
         if (!PasswordConstraints.IsValidPassword(req.Password, out string? passErr))
         {
-            return BadRequest(new { error = passErr ?? "Formato de password inválido" });
+            return BadRequest(new {
+                error = passErr ?? "password is not strong enough"
+            });
         }
 
         var userByName = await _unitOfWork.Users.GetByName(req.Username);
         if (userByName != null)
         {
-            return Conflict(new { error = "Nombre de usuario ya está en uso" });
+            return Conflict(new { error = "username already in use" });
         }
 
 
         var userByEmail = await _unitOfWork.Users.GetByEmail(req.Email);
         if (userByEmail != null)
         {
-            return Conflict(new { error = "Correo ya registrado" });
+            return Conflict(new { error = "email is already in use" });
         }
 
         string passwordHash = PasswordConstraints.HashPassword(req.Password);
-
 
         var user = new User
         {
@@ -105,7 +103,6 @@ public class AuthController(IUnitOfWork unitOfWork) : ControllerBase
 
         _unitOfWork.Users.Add(user);
         await _unitOfWork.SaveChangesAsync();
-
 
         return Ok(new UserDto
         {
