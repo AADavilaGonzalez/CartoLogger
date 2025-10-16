@@ -1,4 +1,6 @@
+import { Map } from "../components/map";
 
 export function Editor(root: HTMLElement): void {
-    root.innerHTML = "Editor";
+    const map = Map();
+    root.appendChild(map);
 }
