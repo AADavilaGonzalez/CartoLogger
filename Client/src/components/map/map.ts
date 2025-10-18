@@ -1,120 +1,116 @@
 import L, { type LeafletMouseEvent } from "leaflet";
-import "leaflet/dist/leaflet.css"
+import "leaflet/dist/leaflet.css";
 
+import type { MapMode, ActionMappings, ActionId } from "./mappings";
 import "./map.css"
 
-class EditPath {
-    private map  : L.Map;
-    private path : L.CircleMarker[];
-    private line : L.Polyline;
-    private opts : L.PathOptions;
+import { EditPath } from "./edit-path";
+import { KeybindsToActionMappings } from "./mappings";
 
-    constructor(
-        map: L.Map,
-        opts: L.PathOptions,
-    ) {
-        this.map  = map;
-        this.path = [];
-        this.line = L.polyline([], opts).addTo(map);
-        this.opts = opts;
-    }
+type CommitMode = "polygon" | "polyline" | "marker";
+type Commiter = (ep: EditPath) => L.Layer;
+const commiters: Record<CommitMode, Commiter> = {
+    polygon   : (ep) => ep.toPolygon(),
+    polyline  : (ep) => ep.toPolyline(),
+    marker    : (ep) => ep.toMarker(),
+};
 
-    private toLatLngArray(): L.LatLng[] {
-        return this.path.map(m => m.getLatLng());
-    }
-
-    private updatePathLine() {
-        this.line.setLatLngs(this.toLatLngArray());
-    }
-
-    push(point: L.LatLng) {
-        this.path.push(
-            L.circleMarker(point, Object.assign(this.opts, {radius: 1}))
-             .addTo(this.map)
-        );
-        this.updatePathLine();
-    }
-
-    pop() {
-        this.path.pop()?.remove();
-        this.updatePathLine(); 
-    }
-
-    clear() {
-        this.path.forEach(m => m.remove());
-        this.path = [];
-        this.updatePathLine();
-    }
-
-    toPolyLine(): L.Polyline {
-        return L.polyline(this.toLatLngArray())
-    }
-
-    toPolygon(): L.Polygon {
-        return L.polygon(this.toLatLngArray());
-    }
-
+type Action = (m:HTMLCartoLoggerMapElement) => void
+const keyboardHandlers: Record<ActionId, Action> = {
+    deleteFeature       : (m) => m.deleteFeature(),
+    commitToMarker      : (m) => { m.commitMode = "marker"; },
+    commitToPolyline    : (m) => { m.commitMode = "polyline"; },
+    commitToPolygon     : (m) => { m.commitMode = "polygon"; },
+    undoPreviousEdit    : (m) => m.undoPreviousEdit(),
+    undoAllEdits        : (m) => m.undoAllEdits(),
+    commitFeature       : (m) => m.commitFeature(),
+    switchToSelectMode  : (m) => { m.mapMode = "select"; },
+    switchToEditMode    : (m) => { m.mapMode = "edit"},
 }
-
 
 class HTMLCartoLoggerMapElement extends HTMLElement {
 
     private map: L.Map;
-    private editPath: EditPath;
     private features: L.FeatureGroup;
-    private commit: () => void;
+    private selectedFeature: L.Layer | null;
+    private editPath: EditPath;
+    private actionMappings: ActionMappings;
+
+    public mapMode: MapMode;
+    public commitMode: CommitMode;
 
     constructor() {
         super();
 
-        this.map = L.map(this).setView([51.505, -0.09], 13);
-        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        this.map = L.map(this).setView([25.725194867753334, -100.31513482332231], 10);
+        L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
             maxZoom: 19,
             attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         }).addTo(this.map);
 
-        this.editPath = new EditPath(this.map, {color: "red"});
         this.features = L.featureGroup().addTo(this.map);
-        this.commit = this.commitToPolyline;
-        
+        this.selectedFeature = null;
+        this.editPath = new EditPath(this.map, {color: "red"});   
+        this.actionMappings = KeybindsToActionMappings({});
+
+        this.mapMode = "select";
+        this.commitMode = "polyline";
+
         this.addEventListener("keydown", (e) => this.keyboardHandler(e));
-        this.map.on("click", (e) => this.onClickHandler(e));
+        this.map.on("click", (e) => this.onMapClick(e));
+        this.features.on("click", (e) => this.onFeatureClick(e))
     }
 
     connectedCallback() { this.map.invalidateSize(); }
 
-    private commitToPolyline() {
-        this.features.addLayer(this.editPath.toPolyLine());
-        this.editPath.clear();
-    }
-    private commitToPolygon() {
-        this.features.addLayer(this.editPath.toPolygon());
-        this.editPath.clear();
+    deleteFeature() {
+        if(!this.selectedFeature) { return; }
+        this.features.removeLayer(this.selectedFeature);
+        this.selectedFeature = null;
     }
 
+    undoPreviousEdit() { this.editPath.pop(); }
+
+    undoAllEdits() { this.editPath.clear(); }
+
+    commitFeature() {
+        if(this.editPath.isEmpty()) { return; }
+        const commiter = commiters[this.commitMode];
+        const feature = commiter(this.editPath);
+        this.features.addLayer(feature);
+        this.editPath.clear();
+    }
+    
     private keyboardHandler(e: KeyboardEvent) {
-        console.log(e.key)
-        switch(e.key) {
-            case "Backspace":
-                this.editPath.pop();
-                break;
-            case "Delete":
-                this.editPath.clear();
-                break;
-            case "Enter":
-                this.commit();
-                break;
-            case "l":
-                this.commit = this.commitToPolyline;
-                break;
-            case "p":
-                this.commit = this.commitToPolygon; 
-                break;
-        }
+        const actionMapper = this.actionMappings[this.mapMode];
+        if(!(e.key in actionMapper)) { return; }
+        const actionId = actionMapper[e.key];
+        const action = keyboardHandlers[actionId];
+        action(this);
     }
 
-    private onClickHandler(e: LeafletMouseEvent) {
-        this.editPath.push(e.latlng);
+    private onFeatureClick(e: LeafletMouseEvent) {
+        const codePath = {
+            select: () => {
+                this.selectedFeature = e.propagatedFrom;
+                L.DomEvent.stopPropagation(e);
+            },
+            edit: () => {}
+        }[this.mapMode];
+        codePath();
+    }
+
+    private onMapClick(e: LeafletMouseEvent) {
+        console.log(e.latlng)
+        const codePath = {
+            select: () => {
+                this.selectedFeature = null
+            },
+            edit: () => {
+                this.editPath.push(e.latlng)
+            },
+        }[this.mapMode];
+        codePath();
     }
 
 }
