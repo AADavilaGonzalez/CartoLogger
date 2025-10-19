@@ -7,15 +7,18 @@ import "./map.css"
 import { EditPath } from "./edit-path";
 import { KeybindsToActionMappings } from "./mappings";
 
+
+type GeoJSONConvertibleLayer = L.Polygon | L.Polyline | L.Marker;
+
 type CommitMode = "polygon" | "polyline" | "marker";
-type Commiter = (ep: EditPath) => L.Layer;
+type Commiter = (ep: EditPath) => GeoJSONConvertibleLayer;
 const commiters: Record<CommitMode, Commiter> = {
     polygon   : (ep) => ep.toPolygon(),
     polyline  : (ep) => ep.toPolyline(),
     marker    : (ep) => ep.toMarker(),
 };
 
-type Action = (m:HTMLCartoLoggerMapElement) => void
+type Action = (m:HTMLGeoJSONMapElement) => void
 const keyboardHandlers: Record<ActionId, Action> = {
     deleteFeature       : (m) => m.deleteFeature(),
     commitToMarker      : (m) => { m.commitMode = "marker"; },
@@ -28,13 +31,37 @@ const keyboardHandlers: Record<ActionId, Action> = {
     switchToEditMode    : (m) => { m.mapMode = "edit"},
 }
 
-class HTMLCartoLoggerMapElement extends HTMLElement {
+type SelectionHandler = (
+    newSelection: GeoJSONConvertibleLayer | null
+) => void;
+
+type SelectionChangeHandler = (
+    oldSelection: GeoJSONConvertibleLayer | null,
+    newSelection: GeoJSONConvertibleLayer | null,
+) => void;
+
+export class HTMLGeoJSONMapElement extends HTMLElement {
 
     private map: L.Map;
-    private features: L.FeatureGroup;
-    private selectedFeature: L.Layer | null;
+    private features: L.GeoJSON;
     private editPath: EditPath;
     private actionMappings: ActionMappings;
+
+    private _selectedFeature: GeoJSONConvertibleLayer | null;
+
+    public get selectedFeature() { return this._selectedFeature; }
+    private set selectedFeature(feature: GeoJSONConvertibleLayer | null) {
+        if(this.onSelection) {
+            this.onSelection(feature);
+        }
+        if(this.onSelectionChange && this._selectedFeature !== feature) {
+            this.onSelectionChange(this._selectedFeature, feature);
+        }
+        this._selectedFeature = feature;
+    }
+
+    public onSelection?: SelectionHandler;
+    public onSelectionChange?: SelectionChangeHandler;
 
     public mapMode: MapMode;
     public commitMode: CommitMode;
@@ -48,10 +75,10 @@ class HTMLCartoLoggerMapElement extends HTMLElement {
             attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         }).addTo(this.map);
 
-        this.features = L.featureGroup().addTo(this.map);
-        this.selectedFeature = null;
+        this.features = L.geoJson().addTo(this.map);
         this.editPath = new EditPath(this.map, {color: "red"});   
         this.actionMappings = KeybindsToActionMappings({});
+        this._selectedFeature = null;
 
         this.mapMode = "select";
         this.commitMode = "polyline";
@@ -76,8 +103,8 @@ class HTMLCartoLoggerMapElement extends HTMLElement {
     commitFeature() {
         if(this.editPath.isEmpty()) { return; }
         const commiter = commiters[this.commitMode];
-        const feature = commiter(this.editPath);
-        this.features.addLayer(feature);
+        const layer = commiter(this.editPath);
+        this.features.addData(layer.toGeoJSON());
         this.editPath.clear();
     }
     
@@ -93,6 +120,9 @@ class HTMLCartoLoggerMapElement extends HTMLElement {
         const codePath = {
             select: () => {
                 this.selectedFeature = e.propagatedFrom;
+                if(this.selectedFeature instanceof L.Path) {
+                    this.selectedFeature.bringToFront();
+                }
                 L.DomEvent.stopPropagation(e);
             },
             edit: () => {}
@@ -101,7 +131,6 @@ class HTMLCartoLoggerMapElement extends HTMLElement {
     }
 
     private onMapClick(e: LeafletMouseEvent) {
-        console.log(e.latlng)
         const codePath = {
             select: () => {
                 this.selectedFeature = null
@@ -115,8 +144,8 @@ class HTMLCartoLoggerMapElement extends HTMLElement {
 
 }
 
-customElements.define("carto-logger-map", HTMLCartoLoggerMapElement);
+customElements.define("geojson-map", HTMLGeoJSONMapElement);
 
-export function Map(): HTMLCartoLoggerMapElement { 
-    return new HTMLCartoLoggerMapElement();
+export function Map(): HTMLGeoJSONMapElement { 
+    return new HTMLGeoJSONMapElement();
 }

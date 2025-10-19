@@ -5,7 +5,7 @@ export function SignUp(root: HTMLElement): void {
     const form = Form(
         {titleText: "Sign Up", submitText: "sign up"}, [
             {key: "username", label: "Username", type: "text"},
-            {key: "email",    label: "Email",    type: "text"},
+            {key: "email",    label: "Email",    type: "email"},
             {key: "password", label: "Password", type: "password"}
         ],
         async (formData: FormData) => {

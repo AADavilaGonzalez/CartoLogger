@@ -1,0 +1,31 @@
+text-editor {
+    border: 4px solid black;
+    border-radius: 1em;
+    background-color: #363636;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 90%;
+    width: 30%;
+    margin-left: 1em;
+    margin-right: 1em;
+}
+
+text-editor textarea {
+    resize: none;
+    width: 95%;
+    background-color: #454545;
+    color: #FFFFFF
+}
+
+text-editor textarea.title {
+    margin-top: 1em;
+    font-size: 1.5em;
+}
+
+text-editor textarea.body {
+    margin-top: 1em;
+    margin-bottom: 1em;
+    flex-grow: 1;
+}
