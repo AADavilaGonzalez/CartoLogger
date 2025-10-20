@@ -7,7 +7,40 @@
     <title>CartoLogger</title>
   </head>
   <body>
-    <div id="app"></div>
+     <div class="container">
+        <div class="left-side">
+          <h2>Bienvenido a <span>CartoLogger</span> </h2>
+        </div>
+
+        <div class="right-side">
+          <div class="form-container">
+            <h2>Login</h2>
+
+            <div class="social-buttons">
+              <button class="google-btn">
+                <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/google/google-original.svg" alt="Google">
+                Login with Google
+              </button>
+              <button class="facebook-btn">
+                <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/facebook/facebook-original.svg" alt="Facebook">
+                Login with Facebook
+              </button>
+            </div>
+
+            <p class="or">— OR —</p>
+
+            <form class="login-box">
+              <input type="email" id="email" placeholder="Email" required>
+              <div class="password-field">
+                <input type="password" id="password" placeholder="Password" required>
+              </div>
+              <button type="submit" class="login">Login</button>
+            </form>
+
+            <p class="signin-text">Aún no tienes cuenta? <a href="#">Sign in</a></p>
+          </div>
+        </div>
+      </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
