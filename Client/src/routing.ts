@@ -6,7 +6,8 @@ type View = (root: HTMLElement) => void;
 
 type RouteTable = {[key: string] : View};
 
-const getRoute = () => location.hash.slice(1) || "/";
+export function getRoute() { return location.hash.slice(1) || "/"; }
+export function setRoute(route: string) { location.hash = route; }
 
 export function SetRoutes(
     root: HTMLElement,

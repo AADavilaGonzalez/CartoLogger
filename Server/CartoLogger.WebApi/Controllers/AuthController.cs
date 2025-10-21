@@ -42,21 +42,10 @@ public class AuthController(IUnitOfWork unitOfWork) : ControllerBase
 
 
         await _unitOfWork.Users.LoadMaps(user);
-        return Ok(new LoginResponse
+        return Ok(new UserDto
         {
-            User = new UserDto
-            {
-                Id = user.Id,
-                Name = user.Name
-            },
-            Maps = user.Maps.Select(m =>
-                new MapDto
-                {
-                    Id = m.Id,
-                    Title = m.Title,
-                    Description = m.Description
-                }
-            )
+            Id = user.Id,
+            Name = user.Name
         });
     }
 

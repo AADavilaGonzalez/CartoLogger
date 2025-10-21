@@ -7,7 +7,6 @@ import "./map.css"
 import { EditPath } from "./edit-path";
 import { KeybindsToActionMappings } from "./mappings";
 
-
 type GeoJSONConvertibleLayer = L.Polygon | L.Polyline | L.Marker;
 
 type CommitMode = "polygon" | "polyline" | "marker";

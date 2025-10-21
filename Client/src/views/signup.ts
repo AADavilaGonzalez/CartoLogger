@@ -1,4 +1,28 @@
-import {Form} from "../components/form"
+import { setRoute } from "../routing";
+import { Form } from "../components/form"
+
+async function onSignUpSubmit(formData: FormData): Promise<void> {
+
+    const jsonString = JSON.stringify(
+        Object.fromEntries(formData.entries())
+    );
+
+    const response = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: jsonString
+    });
+
+    if(response.ok) {
+        setRoute("/login");
+    } else {
+        const error = (await response.json()).error;
+        //anadir feedback visual para signup fallido
+        console.error(error);
+    }
+}
 
 export function SignUp(root: HTMLElement): void {    
     
@@ -7,34 +31,7 @@ export function SignUp(root: HTMLElement): void {
             {key: "username", label: "Username", type: "text"},
             {key: "email",    label: "Email",    type: "email"},
             {key: "password", label: "Password", type: "password"}
-        ],
-        async (formData: FormData) => {
-            
-            const jsonString = JSON.stringify(
-                Object.fromEntries(formData.entries())
-            );
-
-            const response = await fetch("/api/auth/signup", {
-                method: "POST",
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: jsonString
-            });
-
-            const userData = await response.json();
-
-            if(!response.ok) {
-                console.error(userData);
-                return;
-            }
-
-            console.log(userData);
-
-        }
+        ], onSignUpSubmit
     )
-
     root.appendChild(form);
 }
-/*
-*/
