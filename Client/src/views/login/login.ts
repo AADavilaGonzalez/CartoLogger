@@ -1,6 +1,8 @@
-import { state } from "../state";
-import { setRoute } from "../routing";
-import { Form } from "../components/form";
+import { state } from "@/state";
+import { setRoute } from "@/routing";
+
+import "./login.css";
+import html from "./login.html?raw";
 
 async function onLoginSubmit(formData: FormData): Promise<void> {
      
@@ -29,13 +31,10 @@ async function onLoginSubmit(formData: FormData): Promise<void> {
 }
 
 export function Login(root: HTMLElement): void {
-
-    const form = Form(
-        {titleText: "Login", submitText: "login",}, [
-            {key: "identity", label: "Username or Email", type: "text"},
-            {key: "password", label: "Password",          type: "password"}
-        ], onLoginSubmit
-    );
-    root.appendChild(form);
-    
+    root.innerHTML = html;
+    const form = root.querySelector<HTMLFormElement>("#login-form");
+    form?.addEventListener("submit", (e) => {
+        e.preventDefault();
+        onLoginSubmit(new FormData(form));
+    });
 }

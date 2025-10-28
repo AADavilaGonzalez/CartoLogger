@@ -1,25 +1,33 @@
-form {
+quick-form {
     padding: 1em;
     border: 5px solid black;
     border-radius: 1em;
     background-color: #363636;
+}
+
+quick-form form {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
 }
 
-form h2 {
+quick-form h2 {
     text-align: center;
 }
 
-form button {
+quick-form button {
     margin: 0.5rem;
-    max-width: 50%
+    max-width: 50%;
 }
 
-form label {
+quick-form label {
+    display: block;
     margin: 0.5rem;
+}
+
+quick-form input {
+    display: block;
 }
 
 

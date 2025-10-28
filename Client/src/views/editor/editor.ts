@@ -1,6 +1,6 @@
-import { Map } from "../components/map";
+import { Map } from "@/components";
 
-import { TextEditor } from "../components/text-editor"
+import { TextEditor } from "@/components";
 
 type FeaturePropeties = {
     title: string;

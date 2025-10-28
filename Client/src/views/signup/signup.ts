@@ -1,5 +1,5 @@
-import { setRoute } from "../routing";
-import { Form } from "../components/form"
+import { setRoute } from "@/routing";
+import { QuickForm } from "@/components"
 
 async function onSignUpSubmit(formData: FormData): Promise<void> {
 
@@ -26,7 +26,7 @@ async function onSignUpSubmit(formData: FormData): Promise<void> {
 
 export function SignUp(root: HTMLElement): void {    
     
-    const form = Form(
+    const form = QuickForm(
         {titleText: "Sign Up", submitText: "sign up"}, [
             {key: "username", label: "Username", type: "text"},
             {key: "email",    label: "Email",    type: "email"},

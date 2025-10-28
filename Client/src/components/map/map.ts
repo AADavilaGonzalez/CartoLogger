@@ -1,8 +1,8 @@
 import L, { type LeafletMouseEvent } from "leaflet";
 import "leaflet/dist/leaflet.css";
+import "./map.css"
 
 import type { MapMode, ActionMappings, ActionId } from "./mappings";
-import "./map.css"
 
 import { EditPath } from "./edit-path";
 import { KeybindsToActionMappings } from "./mappings";
@@ -67,7 +67,7 @@ export class HTMLGeoJSONMapElement extends HTMLElement {
 
     constructor() {
         super();
-
+        
         this.map = L.map(this).setView([25.725194867753334, -100.31513482332231], 10);
         L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
             maxZoom: 19,
@@ -115,10 +115,11 @@ export class HTMLGeoJSONMapElement extends HTMLElement {
         action(this);
     }
 
-    private onFeatureClick(e: LeafletMouseEvent) {
+    private onFeatureClick(e: LeafletMouseEvent) { 
         const codePath = {
             select: () => {
                 this.selectedFeature = e.propagatedFrom;
+                console.log(this.selectedFeature!.feature);
                 if(this.selectedFeature instanceof L.Path) {
                     this.selectedFeature.bringToFront();
                 }

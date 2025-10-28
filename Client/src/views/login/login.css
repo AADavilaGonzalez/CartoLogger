@@ -1,0 +1,151 @@
+#login {
+  background-color: #c9cbe3;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+}
+
+#login .container {
+  display: flex;
+  width: 850px;
+  height: 500px;
+  background: white;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1);
+}
+
+/* Left side */
+#login .left-side {
+  background: linear-gradient(135deg, #a1aafc, #8d9dfc);
+  color: white;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 30px;
+}
+
+#login .left-side h2 {
+  font-size: 1.3rem;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+#login .left-side span {
+  font-weight: 600;
+}
+
+#login .logo-icon {
+  font-size: 50px;
+  margin-bottom: 20px;
+}
+
+/* Right side */
+#login .right-side {
+  flex: 1.2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  position: relative;
+}
+
+#login .form-container h2 {
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: #0a0a0a;
+  text-align: center;
+}
+
+#login .social-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+
+#login .social-buttons button {
+  width: 48%;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background-color: white;
+  transition: background 0.2s;
+}
+
+#login .social-buttons button:hover {
+  background-color: #f7f7f7;
+}
+
+#login .social-buttons img {
+  width: 20px;
+  margin-right: 8px;
+}
+
+#login .or {
+  text-align: center;
+  margin: 10px 0;
+  color: #777;
+  font-size: 12px;
+}
+
+#login .login-box {
+  background-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(250, 247, 247, 0);
+  text-align: center;
+  border: none;
+}
+
+#login form input {
+  width: 100%;
+  margin-bottom: 12px;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #00000052;
+  outline: none;
+}
+
+#login .password-field {
+  position: relative;
+  width: 100%;
+}
+
+#login .login {
+  width: 100%;
+  background: #8d9dfc;
+  color: white;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 5px;
+}
+
+#login .login:hover {
+  background: #7a8afc;
+}
+
+#login .signin-text {
+  text-align: center;
+  font-size: 0.9rem;
+  margin-top: 10px;
+  color: #777
+}
+
+#login .signin-text a {
+  color: #8d9dfc;
+  text-decoration: none;
+}
+
+#login .signin-text a:hover {
+  text-decoration: underline;
+}
