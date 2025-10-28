@@ -1,9 +1,20 @@
+using System.Text.Json;
+using CartoLogger.Domain.Interfaces;
+
 namespace CartoLogger.Domain.Entities;
 
-public class Feature
+public enum FeatureType {
+    Feature,
+    FeatureCollection
+}
+
+public class Feature : IEntity
 {
-    public int Id {get; init;}
-    public required string Data {get; set;}
+    public int Id {get; private set;}
+    public required FeatureType Type {get; set;}
+    public required string Name {get; set;}
+    public required string Description {get; set;}
+    public required JsonDocument Geometry {get; set;}
 
     public int? MapId {get; private set;}
     public Map? Map {get; init;}

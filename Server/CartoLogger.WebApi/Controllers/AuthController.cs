@@ -3,7 +3,6 @@ using CartoLogger.Domain;
 using CartoLogger.Domain.Constraints;
 using CartoLogger.Domain.Entities;
 using CartoLogger.WebApi.DTO;
-using CartoLogger.WebApi.DTO.Http;
 
 namespace CartoLogger.WebApi.Controllers;
 
@@ -40,12 +39,10 @@ public class AuthController(IUnitOfWork unitOfWork) : ControllerBase
             return Unauthorized(new { error = "invalid credentials" });
         }
 
-
-        await _unitOfWork.Users.LoadMaps(user);
-        return Ok(new UserDto
+        return Ok(new
         {
-            Id = user.Id,
-            Name = user.Name
+            user.Id,
+            user.Name
         });
     }
 
@@ -55,28 +52,21 @@ public class AuthController(IUnitOfWork unitOfWork) : ControllerBase
 
         if (!EmailConstaints.IsValidEmail(req.Email, out string? emailErr))
         {
-            return BadRequest(new {
-                error = emailErr ?? "invalid email format"
-            });
+            return BadRequest(new { error = emailErr ?? "invalid email format" } );
         }
 
 
         if (!PasswordConstraints.IsValidPassword(req.Password, out string? passErr))
         {
-            return BadRequest(new {
-                error = passErr ?? "password is not strong enough"
-            });
+            return BadRequest(new { error = passErr ?? "password is not strong enough" } );
         }
 
-        var userByName = await _unitOfWork.Users.GetByName(req.Username);
-        if (userByName != null)
+        if (await _unitOfWork.Users.ExistsWithName(req.Username))
         {
             return Conflict(new { error = "username already in use" });
         }
 
-
-        var userByEmail = await _unitOfWork.Users.GetByEmail(req.Email);
-        if (userByEmail != null)
+        if (await _unitOfWork.Users.ExistsWithEmail(req.Email))
         {
             return Conflict(new { error = "email is already in use" });
         }
@@ -93,10 +83,10 @@ public class AuthController(IUnitOfWork unitOfWork) : ControllerBase
         _unitOfWork.Users.Add(user);
         await _unitOfWork.SaveChangesAsync();
 
-        return Ok(new UserDto
+        return Ok(new
         {
-            Id = user.Id,
-            Name = user.Name
+            user.Id,
+            user.Name
         });
     }
 }

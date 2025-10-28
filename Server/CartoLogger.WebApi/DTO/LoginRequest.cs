@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace CartoLogger.WebApi.DTO.Http;
+namespace CartoLogger.WebApi.DTO;
 
 public class LoginRequest 
 {

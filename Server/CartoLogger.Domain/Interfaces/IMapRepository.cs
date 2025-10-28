@@ -4,4 +4,5 @@ namespace CartoLogger.Domain.Interfaces;
 
 public interface IMapRepository : IRepository<Map>
 {
+    public Task LoadFeatures(Map map); 
 }

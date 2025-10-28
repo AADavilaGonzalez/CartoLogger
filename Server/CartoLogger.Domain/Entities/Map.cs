@@ -1,6 +1,8 @@
+using CartoLogger.Domain.Interfaces;
+
 namespace CartoLogger.Domain.Entities;
 
-public class Map
+public class Map : IEntity
 {
     public static class TitleConstraints
     {
@@ -34,12 +36,12 @@ public class Map
         }
     }
 
-    public int Id {get; private set;}
-    public required string Title {get; set;}
-    public required string Description {get; set;}
+    public int Id { get; private set; }
+    public required string Title { get; set; }
+    public required string Description { get; set; }
     
-    public int? UserId {get; private set;}
-    public User? User {get; init;}
+    public int? UserId {get; set;}
+    public User? User { get; private set; }
 
-    public List<Feature> Features {get; private set;} = [];
+    public List<Feature> Features { get; private set; } =[];
 }

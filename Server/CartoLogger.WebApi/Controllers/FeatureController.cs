@@ -5,15 +5,16 @@ using CartoLogger.Domain.Constraints;
 using CartoLogger.Domain.Entities;
 using CartoLogger.WebApi.DTO;
 using CartoLogger.Persistence;
-using CartoLogger.WebApi.DTO.Http;
 
 namespace CartoLogger.WebApi.Controllers;
 
 [ApiController]
 [Route("api/feature")]
-public class FeatureController(CartoLoggerDbContext context) : ControllerBase
+public class FeatureController(IUnitOfWork unitOfWork) : ControllerBase
 {
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
+    /*
     [HttpPost]
     public async Task<ActionResult<FeatureDTO>> CreateFeature([FromBody] CreateFeatureDto createDto)
     {
@@ -131,4 +132,5 @@ public class FeatureController(CartoLoggerDbContext context) : ControllerBase
 
         return NoContent(); 
     }
+    */
 }

@@ -1,6 +1,8 @@
-﻿namespace CartoLogger.Domain.Entities;
+﻿using CartoLogger.Domain.Interfaces;
 
-public class User
+namespace CartoLogger.Domain.Entities;
+
+public class User : IEntity
 {
     public static class NameConstraints
     {   
