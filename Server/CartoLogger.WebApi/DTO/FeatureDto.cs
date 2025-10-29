@@ -52,7 +52,11 @@ public class FeatureDto
 
 public class CreateFeatureDto
 {
-    public required string Data { get; set; }
+public required string Name { get; set; }
+    public required string Description { get; set; }
+    public required JsonDocument Geometry { get; set; }
+    public required FeatureType Type { get; set; }
+
     public int? MapId { get; set; }
     public int? UserId { get; set; }
 }

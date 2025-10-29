@@ -14,123 +14,101 @@ public class FeatureController(IUnitOfWork unitOfWork) : ControllerBase
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
-    /*
     [HttpPost]
-    public async Task<ActionResult<FeatureDTO>> CreateFeature([FromBody] CreateFeatureDto createDto)
+    public async Task<ActionResult<FeatureDto>> CreateFeature([FromBody] CreateFeatureDto createDto)
     {
         Map? map = null;
         if (createDto.MapId.HasValue)
         {
-            // 3. Usa 'context' (minúscula), que viene del constructor primario
-            map = await context.Maps.FindAsync(createDto.MapId.Value);
+            map = await _unitOfWork.Maps.GetById(createDto.MapId.Value);
             if (map == null)
-                return NotFound($"Map with ID {createDto.MapId} not found.");
+                return NotFound($"Mapa con ID {createDto.MapId} no encontrado.");
         }
 
         User? user = null;
         if (createDto.UserId.HasValue)
         {
-            user = await context.Users.FindAsync(createDto.UserId.Value);
+            user = await _unitOfWork.Users.GetById(createDto.UserId.Value);
             if (user == null)
-                return NotFound($"User with ID {createDto.UserId} not found.");
+                return NotFound($"Usuario con ID {createDto.UserId} no encontrado.");
         }
 
         var feature = new Feature
         {
-            Data = createDto.Data,
+            Type = createDto.Type,
+            Name = createDto.Name,
+            Description = createDto.Description,
+            Geometry = createDto.Geometry,
             Map = map,
             User = user
         };
 
-        context.Features.Add(feature);
-        await context.SaveChangesAsync();
+        _unitOfWork.Features.Add(feature);
+        await _unitOfWork.SaveChangesAsync();
 
-        var featureDto = new FeatureDTO
-        {
-            Id = feature.Id,
-            Data = feature.Data
-        };
-        return CreatedAtAction(nameof(GetFeatureById), new { id = featureDto.Id }, featureDto);
+        var featureDto = FeatureDto.Map(feature);
+
+        return CreatedAtAction(nameof(GetFeatureById), new { id = feature.Id }, featureDto);
     }
 
-    [HttpGet]
-    public async Task<ActionResult<IEnumerable<FeatureDTO>>> GetFeatures()
-    {
-        var features = await context.Features
-            .Select(f => new FeatureDTO
-            {
-                Id = f.Id,
-                Data = f.Data
-            })
-            .ToListAsync();
-        
-        return Ok(features);
-    }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<FeatureDTO>> GetFeatureById(int id)
+    public async Task<ActionResult<FeatureDto>> GetFeatureById(int id)
     {
-        var featureDto = await context.Features
-            .Where(f => f.Id == id)
-            .Select(f => new FeatureDTO
-            {
-                Id = f.Id,
-                Data = f.Data
-            })
-            .FirstOrDefaultAsync();
+        var feature = await _unitOfWork.Features.GetById(id);
 
-        if (featureDto == null)
+        if (feature is null)
         {
-            return NotFound();
+            return NotFound(new { message = $"Feature con ID {id} no encontrada." });
         }
 
-        return Ok(featureDto);
+        var dto = FeatureDto.Map(feature);
+        return Ok(dto);
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateFeature(int id, [FromBody] UpdateFeatureDto updateDto)
+    public async Task<ActionResult<FeatureDto>> UpdateFeature(int id, [FromBody] CreateFeatureDto updateDto)
     {
-        var feature = await context.Features.FindAsync(id);
+        var featureToUpdate = await _unitOfWork.Features.GetById(id); // cite: uploaded:aadavilagonzalez/cartologger/CartoLogger-4ac715a786fd34c7b99432bfe37c200a076bf564/Server/CartoLogger.Domain/Interfaces/IRepository.cs
 
-        if (feature == null)
+        if (featureToUpdate is null)
         {
-            return NotFound();
+            return NotFound(new { message = $"Feature con ID {id} no encontrada para actualizar." }); // Retorna 404
         }
 
-        feature.Data = updateDto.Data;
+
+        if (updateDto.Name != null) featureToUpdate.Name = updateDto.Name;
+        if (updateDto.Description != null) featureToUpdate.Description = updateDto.Description;
+        if (updateDto.Geometry != null) featureToUpdate.Geometry = updateDto.Geometry;
 
         try
         {
-            await context.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
         }
         catch (DbUpdateConcurrencyException)
         {
-            if (!context.Features.Any(e => e.Id == id))
-            {
-                return NotFound();
-            }
-            else
-            {
-                throw;
-            }
+
+            var exists = await _unitOfWork.Features.Exists(id);
+            if (!exists) return NotFound();
+            else throw;
         }
 
-        return NoContent();
-    }
 
+        return NoContent(); // Retorna 204 No Content indicando éxito
+    }
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteFeature(int id)
     {
-        var feature = await context.Features.FindAsync(id);
-        if (feature == null)
+        var featureToDelete = await _unitOfWork.Features.GetById(id);
+
+        if (featureToDelete is null)
         {
-            return NotFound();
+            return NotFound(new { message = $"Feature con ID {id} no encontrada para eliminar." }); // Retorna 404
         }
 
-        context.Features.Remove(feature);
-        await context.SaveChangesAsync();
+        _unitOfWork.Features.Remove(featureToDelete);
+        await _unitOfWork.SaveChangesAsync();
 
-        return NoContent(); 
+        return NoContent();
     }
-    */
 }
