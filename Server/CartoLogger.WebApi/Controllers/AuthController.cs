@@ -16,7 +16,7 @@ public class AuthController(IUnitOfWork unitOfWork) : ControllerBase
     public async Task<IActionResult> Login([FromBody] LoginRequest req)
     {
         Task<User?> task;
-        if (EmailConstaints.IsValidEmail(req.Identity, out string? emailErr))
+        if (EmailConstaints.IsValidEmail(req.Identity, out string? _))
         {
             task = _unitOfWork.Users.GetByEmail(req.Identity);
         }
@@ -28,22 +28,15 @@ public class AuthController(IUnitOfWork unitOfWork) : ControllerBase
         User? user = await task;
         if (user is null)
         {
-            return Unauthorized(new
-            {
-                error = emailErr ?? "invalid credentials"
-            });
+            return Unauthorized("invalid credentials");
         }
 
         if (!PasswordConstraints.VerifyPassword(req.Password, user.PasswordHash))
         {
-            return Unauthorized(new { error = "invalid credentials" });
+            return Unauthorized("invalid credentials");
         }
 
-        return Ok(new
-        {
-            user.Id,
-            user.Name
-        });
+        return Ok(new { user.Id });
     }
 
     [HttpPost("signup")]
@@ -52,23 +45,23 @@ public class AuthController(IUnitOfWork unitOfWork) : ControllerBase
 
         if (!EmailConstaints.IsValidEmail(req.Email, out string? emailErr))
         {
-            return BadRequest(new { error = emailErr ?? "invalid email format" } );
+            return BadRequest(emailErr ?? "invalid email format");
         }
 
 
         if (!PasswordConstraints.IsValidPassword(req.Password, out string? passErr))
         {
-            return BadRequest(new { error = passErr ?? "password is not strong enough" } );
+            return BadRequest(passErr ?? "password is not strong enough");
         }
 
         if (await _unitOfWork.Users.ExistsWithName(req.Username))
         {
-            return Conflict(new { error = "username already in use" });
+            return Conflict("username already in use");
         }
 
         if (await _unitOfWork.Users.ExistsWithEmail(req.Email))
         {
-            return Conflict(new { error = "email is already in use" });
+            return Conflict("email is already in use");
         }
 
         string passwordHash = PasswordConstraints.HashPassword(req.Password);
@@ -83,10 +76,6 @@ public class AuthController(IUnitOfWork unitOfWork) : ControllerBase
         _unitOfWork.Users.Add(user);
         await _unitOfWork.SaveChangesAsync();
 
-        return Ok(new
-        {
-            user.Id,
-            user.Name
-        });
+        return Ok();
     }
 }
