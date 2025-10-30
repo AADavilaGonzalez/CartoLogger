@@ -1,15 +1,21 @@
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
-
 using CartoLogger.Domain.Entities;
 
 namespace CartoLogger.WebApi.DTO;
 
 public class Properties
 { 
-    public required int Id { get; set; }
-    public required string Name { get; set; }
-    public required string Description { get; set; }
+    public required string Name {get; set;}
+    public required string Description {get; set;}
 }
+
+public class PartialProperties
+{
+    public string? Name {get; set;}
+    public string? Description {get; set;}
+}
+
 
 public class FeatureGeoJson
 {
@@ -17,30 +23,80 @@ public class FeatureGeoJson
     public required Properties Properties { get; set; }
     public required JsonDocument Geometry { get; set; }
 
-    public static string GetTypeString(FeatureType type)
+    public static string GetStrFromType(FeatureType type)
     {
-        return type switch  {
+        return type switch
+        {
             FeatureType.Feature => "Feature",
             FeatureType.FeatureCollection => "FeatureCollection",
             _ => throw new ArgumentException("invalid feature type")
         };
     }
+
+    public static FeatureType GetTypeFromStr(string str)
+    {
+        return str switch
+        {
+            "Feature" => FeatureType.Feature,
+            "FeatureCollection" => FeatureType.FeatureCollection,
+            _ => throw new ArgumentException("invalid feature string")
+        };
+    } 
 }
+
+public class PartialFeatureGeoJson
+{
+    public string? Type {get; set;}
+    public PartialProperties? Properties {get; set;}
+    public JsonDocument? Geometry { get; set; }
+}
+
+
+public class CreateFeatureRequest
+{
+    [Required]
+    public required int? UserId {get; set;}
+    [Required]
+    public required int? MapId {get; set;}
+    [Required]
+    public required FeatureGeoJson GeoJson {get; set;}
+
+    public static Feature ToFeature(CreateFeatureRequest req)
+    {
+        return new Feature
+        {
+            Type = FeatureGeoJson.GetTypeFromStr(req.GeoJson.Type),
+            Name = req.GeoJson.Properties.Name,
+            Description = req.GeoJson.Properties.Description,
+            Geometry = req.GeoJson.Geometry
+        };
+    }
+}
+
+
+public class UpdateFeatureRequest
+{
+    public PartialFeatureGeoJson? GeoJson {get; set;}
+}
+
 
 public class FeatureDto
 {
+    public required int Id {get; set;}
+    public required int? UserId { get; set; }
     public required int? MapId { get; set; }
     public required FeatureGeoJson GeoJson { get; set; }
 
-    public static FeatureDto Map(Feature feature)
+    public static FeatureDto FromFeature(Feature feature)
     {
         return new FeatureDto
         {
+            Id = feature.Id,
+            UserId = feature.UserId,
             MapId = feature.MapId,
             GeoJson = new FeatureGeoJson {
-                Type = FeatureGeoJson.GetTypeString(feature.Type),
+                Type = FeatureGeoJson.GetStrFromType(feature.Type),
                 Properties = new Properties {
-                    Id = feature.Id,
                     Name = feature.Name,
                     Description = feature.Description
                 },
@@ -49,17 +105,3 @@ public class FeatureDto
         };
     }
 }
-
-public class CreateFeatureDto
-{
-public required string Name { get; set; }
-    public required string Description { get; set; }
-    public required JsonDocument Geometry { get; set; }
-    public required FeatureType Type { get; set; }
-
-    public int? MapId { get; set; }
-    public int? UserId { get; set; }
-}
-
-
-

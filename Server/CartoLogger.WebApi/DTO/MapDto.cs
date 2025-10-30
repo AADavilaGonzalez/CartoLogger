@@ -8,7 +8,7 @@ namespace CartoLogger.WebApi.DTO;
 public class CreateMapRequest
 {
     [Required]
-    public required int UserId { get; set; }
+    public required int? UserId { get; set; }
     [Required]
     public required string Title { get; set; }
     [Required]
@@ -17,11 +17,7 @@ public class CreateMapRequest
 
 public class UpdateMapRequest
 {
-    [Required]
-    public int? UserId { get; set; }
-    [Required]
     public string? Title { get; set; }
-    [Required]
     public string? Description {get; set;}
 }
 
@@ -30,18 +26,20 @@ public class MapDto {
     public required int? UserId { get; set; }
     public required string Title { get; set; }
     public required string Description {get; set;}
-
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public IEnumerable<FeatureDto>? Features {get; set;}
 
-    public static MapDto Map(Map map, bool features = false)
+    public static MapDto FromMap(Map map, bool features = false)
     {
         return new MapDto {
             Id = map.Id,
             UserId = map.UserId,
             Title = map.Title,
             Description =  map.Description,
-            Features = features ? map.Features.Select(FeatureDto.Map) : null
+            Features = features ?
+                map.Features.Select(
+                    FeatureDto.FromFeature
+                ) : null
         };
     }
 }
