@@ -29,6 +29,11 @@ public class UserRepository(CartoLoggerDbContext context)
         return _context.Users.SingleOrDefaultAsync(u => u.Email == email);
     }
 
+    public Task<List<Map>> GetMapsById(int id)
+    {
+        return _context.Maps.Where(m => m.UserId == id).ToListAsync();
+    }
+
     public Task LoadMaps(User user)
     {
         return _context.Entry(user).Collection(u => u.Maps).LoadAsync();

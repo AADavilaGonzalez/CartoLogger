@@ -2,6 +2,17 @@ using CartoLogger.Domain.Interfaces;
 
 namespace CartoLogger.Domain.Entities;
 
+public class LatLng
+{
+    public required double Lat {get; init;}
+    public required double Lng {get; init;}
+
+    public static LatLng DefaultLocation()
+    {
+        return new LatLng{Lat = 0, Lng = 0};
+    }
+}
+
 public class Map : IEntity
 {
     public static class TitleConstraints
@@ -39,6 +50,7 @@ public class Map : IEntity
     public int Id { get; private set; }
     public required string Title { get; set; }
     public required string Description { get; set; }
+    public required LatLng View { get; set; }
     
     public int? UserId {get; set;}
     public User? User { get; private set; }

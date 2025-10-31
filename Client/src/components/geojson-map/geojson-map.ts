@@ -1,11 +1,12 @@
 import L, { type LeafletMouseEvent } from "leaflet";
 import "leaflet/dist/leaflet.css";
-import "./map.css"
+import "./geojson-map.css"
 
 import type { MapMode, ActionMappings, ActionId } from "./mappings";
 
 import { EditPath } from "./edit-path";
 import { KeybindsToActionMappings } from "./mappings";
+import { type FeatureDto } from "@/api";
 
 type GeoJSONConvertibleLayer = L.Polygon | L.Polyline | L.Marker;
 
@@ -89,6 +90,13 @@ export class HTMLGeoJSONMapElement extends HTMLElement {
 
     connectedCallback() { this.map.invalidateSize(); }
 
+    loadFeatures(features: FeatureDto[]) {
+        for(const feature of features as any[]) {
+            feature.geojson.properties.id = feature.id;
+            this.features.addData(feature); 
+        }
+    }
+
     deleteFeature() {
         if(!this.selectedFeature) { return; }
         this.features.removeLayer(this.selectedFeature);
@@ -146,6 +154,8 @@ export class HTMLGeoJSONMapElement extends HTMLElement {
 
 customElements.define("geojson-map", HTMLGeoJSONMapElement);
 
-export function Map(): HTMLGeoJSONMapElement { 
-    return new HTMLGeoJSONMapElement();
+export function GeoJsonMap(features: FeatureDto[]): HTMLGeoJSONMapElement { 
+    const map = new HTMLGeoJSONMapElement();
+    map.loadFeatures(features);
+    return map;
 }

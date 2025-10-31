@@ -14,6 +14,9 @@ public class CartoLoggerDbContext(DbContextOptions<CartoLoggerDbContext> options
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     { 
         base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Owned<LatLng>();
+
         //applies the configurations of all types inheriting from
         //IEntityTypeConfiguration<T> automatically by looking at the compiled code
         modelBuilder.ApplyConfigurationsFromAssembly(

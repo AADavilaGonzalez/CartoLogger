@@ -18,8 +18,20 @@ public class MapConfiguration : IEntityTypeConfiguration<Map>
              .HasMaxLength(Map.TitleConstraints.maxLength);
 
         table.Property(map => map.Description)
+             .IsRequired()
              .HasMaxLength(Map.DescriptionConstraints.maxLength);
-        
+
+        table.OwnsOne(map => map.View, owned =>
+        {
+            owned.Property(v => v.Lat)
+                 .HasColumnName("ViewLatitude")
+                 .IsRequired();
+
+            owned.Property(v => v.Lng)
+                 .HasColumnName("ViewCenterLongitude")
+                 .IsRequired(); 
+        });
+
         table.HasOne(map => map.User)
              .WithMany(user => user.Maps)
              .HasForeignKey(map => map.UserId)

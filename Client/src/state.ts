@@ -1,6 +1,7 @@
 type AppState = {
     userId?: number;
-    username?: number
+    mapId?: number;
+    username?: string;
 }
 
 type AppStateListener = (state: AppState) => void

@@ -1,4 +1,6 @@
+import { state } from "@/state";
 
 export function Dashboard(root: HTMLElement): void {
-    root.innerHTML = "Dashboard";
+    var userId = state.get().userId;
+    root.innerText = `Current User id: ${userId}`; 
 }

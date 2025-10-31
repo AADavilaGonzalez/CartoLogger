@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Mvc;
 using CartoLogger.Domain;
 using CartoLogger.Domain.Entities;
 using CartoLogger.WebApi.DTO;
-using System.Text.Json;
 
 namespace CartoLogger.WebApi.Controllers;
 
@@ -88,7 +87,7 @@ public class FeaturesController(IUnitOfWork unitOfWork) : ControllerBase
         if(req.GeoJson?.Properties?.Description is string description) {
             feature.Description = description;
         }
-        if(req.GeoJson?.Geometry is JsonDocument geometry) {
+        if(req.GeoJson?.Geometry is string geometry) {
             feature.Geometry = geometry;
         }
 

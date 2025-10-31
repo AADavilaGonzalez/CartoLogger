@@ -18,9 +18,19 @@ public class UsersController(IUnitOfWork unitOfWork) : ControllerBase
         User? user =  await _unitOfWork.Users.GetById(id);
         if(user is null)
         {
-            return BadRequest($"user with id {id} does not exist");
+            return NotFound($"invalid user id: {id}");
         }
 
         return Ok(UserDto.FromUser(user, maps));
+    }
+
+    [HttpGet("{id}/maps")]
+    public async Task<IActionResult> GetUserMaps([FromRoute] int id)
+    {
+        if(!await _unitOfWork.Users.Exists(id))
+        {
+            return NotFound($"invalid user id: {id}");
+        }
+        return Ok(await _unitOfWork.Users.GetMapsById(id));
     }
 }

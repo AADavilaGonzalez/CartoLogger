@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using System.Text.Json;
 using CartoLogger.Domain.Entities;
 
 namespace CartoLogger.WebApi.DTO;
@@ -21,7 +20,7 @@ public class FeatureGeoJson
 {
     public required string Type { get; set; }
     public required Properties Properties { get; set; }
-    public required JsonDocument Geometry { get; set; }
+    public required string Geometry { get; set; }
 
     public static string GetStrFromType(FeatureType type)
     {
@@ -48,7 +47,7 @@ public class PartialFeatureGeoJson
 {
     public string? Type {get; set;}
     public PartialProperties? Properties {get; set;}
-    public JsonDocument? Geometry { get; set; }
+    public string? Geometry { get; set; }
 }
 
 

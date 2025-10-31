@@ -22,11 +22,11 @@
         <p class="or">— OR —</p>
     
         <form id=login-form class="login-box">
-          <input type="email" id="email" placeholder="Email" required>
+          <input type="text" name="identity" placeholder="Username or Email" required>
           <div class="password-field">
-            <input type="password" id="password" placeholder="Password" required>
+            <input type="password" name="password" placeholder="Password" required>
           </div>
-          <button type="submit" class="login">Login</button>
+          <button type="submit" form="login-form" class="login">Login</button>
         </form>
     
         <p class="signin-text">Aún no tienes cuenta? <a href="#/signup">Sign in</a></p>

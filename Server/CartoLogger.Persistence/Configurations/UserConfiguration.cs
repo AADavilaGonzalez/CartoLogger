@@ -17,12 +17,14 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         table.Property(user => user.Name)
              .IsRequired()
              .HasMaxLength(User.NameConstraints.maxLength);
+
         table.HasIndex(user => user.Name)
              .IsUnique();
 
         table.Property(user => user.Email)
              .IsRequired()
              .HasMaxLength(EmailConstaints.maxLength);
+
         table.HasIndex(user => user.Email)
              .IsUnique();  
     }

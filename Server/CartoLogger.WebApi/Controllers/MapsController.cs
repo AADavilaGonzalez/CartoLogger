@@ -35,7 +35,8 @@ public class MapsController(IUnitOfWork unitOfWork) : ControllerBase
         {
             UserId = req.UserId,
             Title = req.Title,
-            Description = req.Description
+            Description = req.Description,
+            View = req.View
         };
 
         _unitOfWork.Maps.Add(map);
@@ -122,5 +123,15 @@ public class MapsController(IUnitOfWork unitOfWork) : ControllerBase
         map.UserId = userId;
         await _unitOfWork.SaveChangesAsync();
         return NoContent();
+    }
+
+    [HttpGet("{id}/features")]
+    public async Task<IActionResult> GetFeatures([FromRoute] int id)
+    {
+        if(!await _unitOfWork.Maps.Exists(id))
+        {
+            return NotFound($"invalid map id: {id}");
+        }
+        return Ok(await _unitOfWork.Maps.GetFeaturesById(id));
     }
 }
