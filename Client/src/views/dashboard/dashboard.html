@@ -1,31 +1,47 @@
 <div id="dashboard">
-  <div class="container">
-    <div class="left-column">
-      <div class="favourit-maps-section">
-        <h2>Mapas Favoritos</h2>
-      
-        <div class="maps-list" id="maps-list">
-          <div class="loading" id="loading">Cargando mapas...</div>
+  <!-- Header Bar -->
+  <div class="header-bar">
+    <div class="logo">CartoLogger</div>
+    <div class="welcome-message">Welcome, <span id="username">*username*</span></div>
+    <button class="logout-btn" id="logout-btn">Log Out</button>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <!-- Left Panel with Favorites and My Maps -->
+    <div class="left-panel">
+      <!-- Favorites Section -->
+      <div class="favorites-section">
+        <h2>Favorites</h2>
+        <div class="maps-grid" id="favorites-grid">
+          <div class="loading" id="favorites-loading">Cargando favoritos...</div>
         </div>
-      
-        <button class="create-map-btn" id="create-map-btn">
+        <button class="add-favorite-btn" id="add-favorite-btn">
           <span class="plus-icon">+</span>
-          Agregar Mapa
+          Agregar a Favoritos
         </button>
-    </div>
-    
-    <div class="right-column">
-      <div class="maps-section">
-        <h2>Mis Mapas</h2>
-        
-        <div class="maps-list" id="maps-list">
-          <div class="loading" id="loading">Cargando mapas...</div>
+      </div>
+
+      <!-- My Maps Section -->
+      <div class="my-maps-section">
+        <h2>My Maps</h2>
+        <div class="maps-grid" id="my-maps-grid">
+          <div class="loading" id="my-maps-loading">Cargando mapas...</div>
         </div>
-        
         <button class="create-map-btn" id="create-map-btn">
           <span class="plus-icon">+</span>
           Crear Nuevo Mapa
         </button>
+      </div>
+    </div>
+
+    <!-- Right Panel for Map Details -->
+    <div class="right-panel">
+      <div class="map-details" id="map-details">
+        <div class="no-selection">
+          <h3>*Detalles del Mapa Seleccionado*</h3>
+          <p>Haz clic en un mapa para ver sus detalles</p>
+        </div>
       </div>
     </div>
   </div>
