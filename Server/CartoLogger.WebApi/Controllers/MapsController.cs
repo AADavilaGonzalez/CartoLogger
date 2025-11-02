@@ -7,9 +7,10 @@ namespace CartoLogger.WebApi.Controllers;
 
 [ApiController]
 [Route("api/maps")]
-public class MapsController(IUnitOfWork unitOfWork) : ControllerBase
+public class MapsController(IUnitOfWork unitOfWork) : CartoLoggerController
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
+
 
     [HttpPost]
     public async Task<IActionResult> CreateMap(CreateMapRequest req) {
@@ -17,18 +18,26 @@ public class MapsController(IUnitOfWork unitOfWork) : ControllerBase
         if(!Map.TitleConstraints
                .IsValidTitle(req.Title, out string? titleErr)
         ) {
-            return BadRequest(titleErr);
+            return Problem(
+                title: "Bad Title",
+                detail:titleErr,
+                statusCode: StatusCodes.Status400BadRequest
+            );
         }
 
         if(!Map.DescriptionConstraints
                .IsValidDescription(req.Description, out string? descErr)
         ) {
-           return BadRequest(descErr);
+           return Problem(
+                title: "Bad Description",
+                detail: descErr,
+                statusCode: StatusCodes.Status400BadRequest
+            );
         }
         
         if(req.UserId is int id && !await _unitOfWork.Users.Exists(id))
         {
-            return NotFound($"invalid user id: {id}");
+            return UserNotFound(id);
         }
 
         var map = new Map
@@ -49,15 +58,13 @@ public class MapsController(IUnitOfWork unitOfWork) : ControllerBase
         );
     }
 
+
     [HttpGet("{id}")]
     public async Task<IActionResult> GetMapById(
         [FromRoute] int id, [FromQuery] bool features = false
     ) {
         var map = await _unitOfWork.Maps.GetById(id);
-        if(map is null)
-        {
-            return BadRequest($"map with id {id} does not exist");
-        }
+        if(map is null) { return MapNotFound(id); }
 
         if(features) { await _unitOfWork.Maps.LoadFeatures(map); }
 
@@ -65,21 +72,23 @@ public class MapsController(IUnitOfWork unitOfWork) : ControllerBase
         return Ok(MapDto.FromMap(map));
     }
 
+    
     [HttpPatch("{id}")]
     public async Task<IActionResult> UpdateMap(
         [FromRoute] int id, [FromBody] UpdateMapRequest req
     ) {
         var map = await _unitOfWork.Maps.GetById(id);
-        if(map is null)
-        {
-            return BadRequest($"invalid map id: {id}");
-        }
+        if(map is null) { return MapNotFound(id); }
 
         if(req.Title is not null) {
             if(!Map.TitleConstraints
                    .IsValidTitle(req.Title, out string? err)
             ) {
-                return BadRequest(err);
+                return Problem(
+                    title: "Bad Title",
+                    detail: err,
+                    statusCode: StatusCodes.Status400BadRequest
+                );
             }
             map.Title = req.Title;
         }
@@ -89,7 +98,11 @@ public class MapsController(IUnitOfWork unitOfWork) : ControllerBase
             if(!Map.DescriptionConstraints
                    .IsValidDescription(req.Description, out string? err)
             ) {
-                return BadRequest(err);
+                return Problem(
+                    title: "Bad Description",
+                    detail: err,
+                    statusCode: StatusCodes.Status400BadRequest
+                );
             }
             map.Description = req.Description;
         }
@@ -101,8 +114,9 @@ public class MapsController(IUnitOfWork unitOfWork) : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteMap([FromRoute] int id)
     {
-        if(!await _unitOfWork.Maps.Exists(id)) {
-            return NotFound($"invalid map id: {id}");
+        if(!await _unitOfWork.Maps.Exists(id))
+        {
+            return MapNotFound(id);
         }
         await _unitOfWork.Maps.RemoveById(id);
         return NoContent();
@@ -112,13 +126,14 @@ public class MapsController(IUnitOfWork unitOfWork) : ControllerBase
     public async Task<IActionResult> AssignUser(
         [FromRoute] int id, [FromRoute] int userId)
     {
-        if(!await _unitOfWork.Users.Exists(userId)) {
-            return NotFound($"invalid user id: {userId}");
+        if(!await _unitOfWork.Users.Exists(userId))
+        {
+            return UserNotFound(userId);
         }
         Map? map = await _unitOfWork.Maps.GetById(id);
         if(map is null)
         {
-            return NotFound($"invalid map id: {id}");
+            return MapNotFound(id);
         }
         map.UserId = userId;
         await _unitOfWork.SaveChangesAsync();
@@ -130,7 +145,7 @@ public class MapsController(IUnitOfWork unitOfWork) : ControllerBase
     {
         if(!await _unitOfWork.Maps.Exists(id))
         {
-            return NotFound($"invalid map id: {id}");
+            return MapNotFound(id);
         }
         return Ok(await _unitOfWork.Maps.GetFeaturesById(id));
     }

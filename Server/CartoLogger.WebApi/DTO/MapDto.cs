@@ -11,10 +11,10 @@ public class CreateMapRequest
     public required int? UserId { get; set; }
     [Required]
     public required string Title { get; set; }
-    [Required]
+    [Required(AllowEmptyStrings = true)]
     public required string Description { get; set; }
     
-    public required LatLng View { get; set; } = LatLng.DefaultLocation();
+    public LatLng View { get; set; } = LatLng.DefaultLocation();
 }
 
 public class UpdateMapRequest
@@ -30,11 +30,14 @@ public class MapDto {
     public required string Title { get; set; }
     public required string Description { get; set; }
     public required LatLng ViewCenter { get; set; }
+
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public IEnumerable<FeatureDto>? Features {get; set;}
 
-    public static MapDto FromMap(Map map, bool features = false)
-    {
+    public static MapDto FromMap(
+        Map map,
+        bool features = false
+    ) {
         return new MapDto {
             Id = map.Id,
             UserId = map.UserId,

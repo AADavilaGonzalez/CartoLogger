@@ -1,4 +1,4 @@
-import { state } from "@/state";
+import { State } from "@/state";
 import { getMapFeatures } from "@/api";
 import { setRoute } from "@/routing"; 
 import { GeoJsonMap, TextEditor } from "@/components";
@@ -10,7 +10,7 @@ type FeaturePropeties = {
 
 export async function Editor(root: HTMLElement) {
    
-    const mapId = state.get().mapId;
+    const mapId = State.get().mapId;
     if(!mapId) {
         alert("mapId failed to load before accesing editor");
         setRoute("/dashboard");

@@ -36,5 +36,6 @@ public class MapConfiguration : IEntityTypeConfiguration<Map>
              .WithMany(user => user.Maps)
              .HasForeignKey(map => map.UserId)
              .OnDelete(DeleteBehavior.SetNull);
+
     }
 }

@@ -8,9 +8,10 @@ namespace CartoLogger.WebApi.Controllers;
 
 [ApiController]
 [Route("api/auth")]
-public class AuthController(IUnitOfWork unitOfWork) : ControllerBase
+public class AuthController(IUnitOfWork unitOfWork) : CartoLoggerController
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
+
 
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequest req)
@@ -26,18 +27,18 @@ public class AuthController(IUnitOfWork unitOfWork) : ControllerBase
         }
 
         User? user = await task;
-        if (user is null)
-        {
-            return Unauthorized("invalid credentials");
-        }
-
-        if (!PasswordConstraints.VerifyPassword(req.Password, user.PasswordHash))
-        {
-            return Unauthorized("invalid credentials");
+        if(user is null ||!PasswordConstraints.VerifyPassword(req.Password, user.PasswordHash)
+        ) {
+            return Problem( 
+                title: "Unauthorized",
+                detail: "Invalid credentials",
+                statusCode: StatusCodes.Status401Unauthorized
+            );
         }
 
         return Ok(new { user.Id });
     }
+
 
     [HttpPost("signup")]
     public async Task<IActionResult> SignUp([FromBody] SignUpRequest req)
@@ -45,23 +46,38 @@ public class AuthController(IUnitOfWork unitOfWork) : ControllerBase
 
         if (!EmailConstaints.IsValidEmail(req.Email, out string? emailErr))
         {
-            return BadRequest(emailErr ?? "invalid email format");
+            return Problem(
+                title: "Bad email",
+                detail: emailErr ?? "invalid email format",
+                statusCode: StatusCodes.Status400BadRequest
+            );
         }
-
 
         if (!PasswordConstraints.IsValidPassword(req.Password, out string? passErr))
         {
-            return BadRequest(passErr ?? "password is not strong enough");
+            return Problem(
+                title: "Bad password",
+                detail: passErr ?? "password is not strong enough",
+                statusCode: StatusCodes.Status400BadRequest
+            );
         }
 
         if (await _unitOfWork.Users.ExistsWithName(req.Username))
         {
-            return Conflict("username already in use");
+            return Problem(
+                title: "Bad password",
+                detail: "username already in use",
+                statusCode: StatusCodes.Status409Conflict
+            );
         }
 
         if (await _unitOfWork.Users.ExistsWithEmail(req.Email))
         {
-            return Conflict("email is already in use");
+            return Problem(
+                title: "Bad email",
+                detail: "email is already in use",
+                statusCode: StatusCodes.Status409Conflict
+            );
         }
 
         string passwordHash = PasswordConstraints.HashPassword(req.Password);
@@ -76,6 +92,6 @@ public class AuthController(IUnitOfWork unitOfWork) : ControllerBase
         _unitOfWork.Users.Add(user);
         await _unitOfWork.SaveChangesAsync();
 
-        return Ok();
+        return NoContent();
     }
 }

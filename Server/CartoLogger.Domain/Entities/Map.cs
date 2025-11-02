@@ -29,7 +29,7 @@ public class Map : IEntity
                 return false;
             }
             err = null;
-            return false;
+            return true;
         }
     }
 
@@ -55,5 +55,8 @@ public class Map : IEntity
     public int? UserId {get; set;}
     public User? User { get; private set; }
 
-    public List<Feature> Features { get; private set; } =[];
+    public ICollection<Feature> Features { get; private set; } = [];
+
+    //Many to many User<->Maps
+    public ICollection<UserFavoriteMap> FavoritedBy {get; private set;} = []; 
 }

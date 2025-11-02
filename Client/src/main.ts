@@ -1,5 +1,5 @@
 import "./style/global.css";
-import {SetRoutes} from "./routing.ts";
+import { SetRoutes } from "./routing.ts";
 import * as Views from "./views";
 
 const root = document.querySelector<HTMLDivElement>("#app");
@@ -16,5 +16,3 @@ export const appRouter = SetRoutes(
     },
     Views.NotFound
 );
-
-

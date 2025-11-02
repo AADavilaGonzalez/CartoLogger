@@ -10,6 +10,7 @@ public class CartoLoggerDbContext(DbContextOptions<CartoLoggerDbContext> options
     public DbSet<User> Users => Set<User>();
     public DbSet<Map> Maps => Set<Map>();
     public DbSet<Feature> Features => Set<Feature>();
+    public DbSet<UserFavoriteMap> UserFavoriteMaps => Set<UserFavoriteMap>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     { 

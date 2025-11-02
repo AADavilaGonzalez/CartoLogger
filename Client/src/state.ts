@@ -26,7 +26,7 @@ function addAppStateListener(listener: AppStateListener) {
     appStateListeners.push(listener);
 }
 
-export const state = {
+export const State = {
      get: getAppState,
      set: setAppState,
      addListener: addAppStateListener

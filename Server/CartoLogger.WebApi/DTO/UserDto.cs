@@ -18,9 +18,13 @@ public class UserDto {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public IEnumerable<MapDto>? Maps {get; set;}
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IEnumerable<MapDto>? FavoriteMaps {get; set;}
+
     public static UserDto FromUser(
         User user,
-        bool maps = false
+        bool maps = false,
+        bool favoriteMaps = false
     ) {
         return new UserDto {
             Id = user.Id,
@@ -32,6 +36,15 @@ public class UserDto {
                         map,
                         features: false
                     )
+                ) : null,
+            FavoriteMaps = favoriteMaps ?
+                user.FavoriteMaps
+                    .Where(ufm => ufm.Map is not null)
+                    .Select(
+                        ufm => MapDto.FromMap(
+                            ufm.Map!,
+                            features: false
+                    ) 
                 ) : null
         };
     }
