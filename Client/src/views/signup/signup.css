@@ -99,18 +99,18 @@
   background: #7a8afc;
 }
 
-#signup .signin-text {
+#signup .login-text {
   text-align: center;
   font-size: 0.9rem;
   margin-top: 10px;
   color: #777
 }
 
-#signup .signin-text a {
+#signup .login-text a {
   color: #8d9dfc;
   text-decoration: none;
 }
 
-#signup .signin-text a:hover {
+#signup .login-text a:hover {
   text-decoration: underline;
 }
