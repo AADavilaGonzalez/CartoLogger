@@ -62,41 +62,6 @@
   text-align: center;
 }
 
-#login .social-buttons {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 15px;
-}
-
-#login .social-buttons button {
-  width: 48%;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  padding: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  background-color: white;
-  transition: background 0.2s;
-}
-
-#login .social-buttons button:hover {
-  background-color: #f7f7f7;
-}
-
-#login .social-buttons img {
-  width: 20px;
-  margin-right: 8px;
-}
-
-#login .or {
-  text-align: center;
-  margin: 10px 0;
-  color: #777;
-  font-size: 12px;
-}
-
 #login .login-box {
   background-color: #ffffff;
   box-shadow: 0 0 0 3px rgba(250, 247, 247, 0);
@@ -149,3 +114,4 @@
 #login .signin-text a:hover {
   text-decoration: underline;
 }
+
