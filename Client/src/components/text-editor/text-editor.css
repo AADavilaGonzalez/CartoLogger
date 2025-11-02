@@ -1,31 +1,85 @@
+
 text-editor {
-    border: 4px solid black;
-    border-radius: 1em;
     background-color: #363636;
+    border-radius: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    border: none;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 90%;
+    height: 95%; 
     width: 30%;
     margin-left: 1em;
     margin-right: 1em;
+    padding: 20px;
+    overflow-y: auto; 
 }
-
 text-editor textarea {
-    resize: none;
-    width: 95%;
-    background-color: #454545;
-    color: #FFFFFF
+    resize: none; 
+    width: 100%;
+    color: #e0e0e0;
+    outline: none; 
+    transition: border-color 0.2s, box-shadow 0.2s;
+    font-family: 'Poppins', sans-serif; 
 }
 
+/* Título */
 text-editor textarea.title {
-    margin-top: 1em;
-    font-size: 1.5em;
+    background-color: transparent; 
+    border: none; 
+    padding: 10px 0; 
+    font-size: 2em; 
+    font-weight: 600;
+    color: #ffffff; 
+    margin-bottom: 0.5em;
+    overflow-y: hidden; 
 }
 
 text-editor textarea.body {
-    margin-top: 1em;
-    margin-bottom: 1em;
+    background-color: #454545;
+    border: 1px solid #555555;
+    border-radius: 8px;
+    padding: 12px;
+    min-height: 150px; 
+    overflow-y: hidden; 
+    text-editor textarea.body {
     flex-grow: 1;
+    overflow-y: auto;
+    min-height: 0;
+}
+}
+
+text-editor textarea.title:focus {
+    box-shadow: 0 2px 0 0 #8d9dfc; 
+    border-color: transparent; 
+}
+
+text-editor textarea.body:focus {
+    border-color: #8d9dfc;
+    box-shadow: 0 0 0 3px #8d9dfc33;
+}
+
+text-editor textarea::placeholder {
+    color: #7c7c7c;
+    opacity: 1; 
+}
+
+.help-text {
+    color: #9c9c9c;
+    font-size: 0.8em;
+    text-align: center;
+    margin-top: 15px;
+    padding-top: 10px;
+    border-top: 1px solid #454545;
+    flex-shrink: 0; 
+}
+
+.help-text span {
+    background-color: #454545;
+    border: 1px solid #555555;
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-weight: 600;
+    color: #e0e0e0;
+    font-family: monospace;
+    margin-right: 4px;
 }
