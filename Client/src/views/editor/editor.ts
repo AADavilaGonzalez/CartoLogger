@@ -8,6 +8,7 @@ import {
 } from "@/api";
 import { setRoute } from "@/routing"; 
 import { GeoJsonMap, TextEditor } from "@/components";
+import "./editor.css";
 
 function handleUserDataError() {
     setRoute("/login");
@@ -38,12 +39,31 @@ export async function Editor(root: HTMLElement) {
         return;
     }
 
-    //Create Elements
-    const map = GeoJsonMap();
-    root.appendChild(map);
+    const editorContainer = document.createElement('div');
+    editorContainer.className = 'editor-container';
 
+    const backButton = document.createElement('button');
+    backButton.textContent = '← Volver al dashboard';
+    backButton.className = 'editor-back-button';
+    backButton.addEventListener('click', () => setRoute("/dashboard"));
+
+    const mainContent = document.createElement('div');
+    mainContent.className = 'editor-main-content';
+    
+    const map = GeoJsonMap();
     const textEditor = TextEditor();
-    root.appendChild(textEditor);
+
+    const sidebarContainer = document.createElement('div');
+    sidebarContainer.className = 'editor-sidebar-container';
+
+    sidebarContainer.appendChild(textEditor);
+    sidebarContainer.appendChild(backButton);
+
+    mainContent.appendChild(map);
+    mainContent.appendChild(sidebarContainer);
+
+    editorContainer.appendChild(mainContent);
+    root.appendChild(editorContainer);
 
 
     map.view = mapView;

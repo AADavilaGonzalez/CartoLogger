@@ -1,4 +1,3 @@
-
 text-editor {
     background-color: #363636;
     border-radius: 20px;
@@ -6,13 +5,13 @@ text-editor {
     border: none;
     display: flex;
     flex-direction: column;
-    height: 95%; 
-    width: 30%;
-    margin-left: 1em;
-    margin-right: 1em;
     padding: 20px;
+
+    flex-grow: 1; 
+    min-height: 0; 
     overflow-y: auto; 
 }
+
 text-editor textarea {
     resize: none; 
     width: 100%;
@@ -22,7 +21,6 @@ text-editor textarea {
     font-family: 'Poppins', sans-serif; 
 }
 
-/* Título */
 text-editor textarea.title {
     background-color: transparent; 
     border: none; 
@@ -31,7 +29,8 @@ text-editor textarea.title {
     font-weight: 600;
     color: #ffffff; 
     margin-bottom: 0.5em;
-    overflow-y: hidden; 
+    overflow-y: hidden;
+    flex-shrink: 0;
 }
 
 text-editor textarea.body {
@@ -40,14 +39,9 @@ text-editor textarea.body {
     border-radius: 8px;
     padding: 12px;
     min-height: 150px; 
-    overflow-y: hidden; 
-    text-editor textarea.body {
-    flex-grow: 1;
-    overflow-y: auto;
-    min-height: 0;
+    overflow-y: hidden;
+    flex-shrink: 0;
 }
-}
-
 text-editor textarea.title:focus {
     box-shadow: 0 2px 0 0 #8d9dfc; 
     border-color: transparent; 
