@@ -1,4 +1,5 @@
-import { type LatLng } from "leaflet";
+import type { View } from "@/types";
+
 
 export type UserDto = {
     id: number;
@@ -13,7 +14,7 @@ export type MapDto = {
     userId: number | null;
     title: string;
     description: string;
-    viewCenter: LatLng;
+    view: View, 
     features?: FeatureDto[];
 }
 
@@ -26,7 +27,7 @@ export type FeatureDto = {
         properties: {
             name: string;
             description: string;
-        }
+        };
         geometry: any;
     };
 }
@@ -64,7 +65,9 @@ async function handleRequest<T>(
     
 }
 
-export async function getUserData(userId: number): Promise<UserData> {
+export async function getUserData(
+    userId: number
+): Promise<UserData> {
     const userDto: UserDto = await handleRequest(() =>
         fetch(`/api/users/${userId}`, {
             method: "GET"
@@ -73,7 +76,9 @@ export async function getUserData(userId: number): Promise<UserData> {
     return {username: userDto.name}
 }
 
-export async function getUserMaps(userId: number): Promise<MapDto[]> {
+export async function getUserMaps(
+    userId: number
+): Promise<MapDto[]> {
     return handleRequest(() =>
         fetch(`/api/users/${userId}/maps`, {
             method: "GET"
@@ -81,7 +86,9 @@ export async function getUserMaps(userId: number): Promise<MapDto[]> {
     );
 }
 
-export async function getUserFavoriteMaps(userId: number): Promise<MapDto[]> {
+export async function getUserFavoriteMaps(
+    userId: number
+): Promise<MapDto[]> {
     return handleRequest(() =>
         fetch(`/api/users/${userId}/favorite-maps`, {
             method: "GET"
@@ -89,7 +96,9 @@ export async function getUserFavoriteMaps(userId: number): Promise<MapDto[]> {
     );
 }
 
-export async function getMapFeatures(mapId: number): Promise<FeatureDto[]> {
+export async function getMapFeatures(
+    mapId: number
+): Promise<FeatureDto[]> {
     return handleRequest(() =>
         fetch(`/api/maps/${mapId}/features`, {
             method: "GET"
@@ -98,13 +107,15 @@ export async function getMapFeatures(mapId: number): Promise<FeatureDto[]> {
 }
 
 type MapCreateRequest = {
-    userId: number;
+    userId: number | null;
     title: string;
     description: string;
-    view?: LatLng;
+    view?: View;
 }
 
-export async function createMapResorce(req: MapCreateRequest): Promise<MapDto> {
+export async function createMapResorce(
+    req: MapCreateRequest
+): Promise<MapDto> {
     return handleRequest(() =>
         fetch("/api/maps/", {
             method: "POST",
@@ -119,10 +130,12 @@ export async function createMapResorce(req: MapCreateRequest): Promise<MapDto> {
 type UpdateMapRequest = {
     title?: string;
     description?: string;
-    view?: LatLng;
+    view?: Partial<View>;
 };
 
-export async function updateMapResource(mapId: number, req: UpdateMapRequest) {
+export async function updateMapResource(
+    mapId: number, req: UpdateMapRequest
+): Promise<void> {
     return handleRequest(() =>
         fetch(`/api/maps/${mapId}`, {
             method: "PATCH",
@@ -134,7 +147,9 @@ export async function updateMapResource(mapId: number, req: UpdateMapRequest) {
     );
 }
 
-export async function deleteMapResource(mapId: number) {
+export async function deleteMapResource(
+    mapId: number
+): Promise<void> {
     return handleRequest(() =>
         fetch(`/api/maps/${mapId}`, {
             method: "DELETE",
@@ -142,7 +157,9 @@ export async function deleteMapResource(mapId: number) {
     );
 }
 
-export async function addMapToFavorites(userId: number, mapId: number) {
+export async function addMapToFavorites(
+    userId: number, mapId: number
+): Promise<void> {
     return handleRequest(() =>
         fetch(`/api/users/${userId}/add-map-to-favorites/${mapId}`, {
             method: "POST"
@@ -150,9 +167,74 @@ export async function addMapToFavorites(userId: number, mapId: number) {
     );
 }
 
-export async function removeMapFromFavorites(userId: number, mapId: number) {
+export async function removeMapFromFavorites(
+    userId: number, mapId: number
+): Promise<void> {
     return handleRequest(() =>
         fetch(`/api/users/${userId}/remove-map-from-favorites/${mapId}`, {
+            method: "DELETE"
+        })
+    );
+}
+
+type CreateFeatureRequest = {
+    userId: number | null;
+    mapId: number | null;
+    geojson: {
+        type: "Feature" | "FeatureCollection";
+        properties: {
+            name: string;
+            description: string;
+        };
+        geometry: any;
+    };
+}
+
+export async function createFeatureResource(
+    req: CreateFeatureRequest
+): Promise<FeatureDto> {
+    return handleRequest(() => 
+        fetch(`/api/features/`, {
+            method: "POST",
+            headers: { 
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(req)
+        })
+    ); 
+}
+
+type UpdateFeatureRequest = {
+    geojson?: {
+        type?: "Feature" | "FeatureCollection";
+        properties?: {
+            name?: string;
+            description?: string;
+        };
+        geometry?: any;
+    };
+}
+
+export async function updateFeatureResource(
+    featureId: number,
+    req: UpdateFeatureRequest
+): Promise<void> {
+    return handleRequest(() => 
+        fetch(`/api/features/${featureId}`, {
+            method: "PATCH",
+            headers: { 
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(req)
+        })
+    ); 
+}
+
+export async function deleteFeatureResource(
+    featureId: number
+): Promise<void> {
+    return handleRequest(() =>
+        fetch(`/api/features/${featureId}`, {
             method: "DELETE"
         })
     );

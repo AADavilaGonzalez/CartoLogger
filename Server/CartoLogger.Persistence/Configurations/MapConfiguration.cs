@@ -7,32 +7,39 @@ namespace CartoLogger.Persistence.Configurations;
 
 public class MapConfiguration : IEntityTypeConfiguration<Map>
 {
-    public void Configure(EntityTypeBuilder<Map> table)
+    public void Configure(EntityTypeBuilder<Map> modelBuilder)
     {
-        table.HasKey(map => map.Id);
-        table.Property(map => map.Id)
+        modelBuilder.HasKey(map => map.Id);
+        modelBuilder.Property(map => map.Id)
              .ValueGeneratedOnAdd();
 
-        table.Property(map => map.Title)
+        modelBuilder.Property(map => map.Title)
              .IsRequired()
              .HasMaxLength(Map.TitleConstraints.maxLength);
 
-        table.Property(map => map.Description)
+        modelBuilder.Property(map => map.Description)
              .IsRequired()
              .HasMaxLength(Map.DescriptionConstraints.maxLength);
 
-        table.OwnsOne(map => map.View, owned =>
+        modelBuilder.OwnsOne(map => map.View, view =>
         {
-            owned.Property(v => v.Lat)
-                 .HasColumnName("ViewLatitude")
-                 .IsRequired();
+            view.OwnsOne(v => v.Center, center =>
+            {
+                center.Property(c => c.Lat)
+                      .HasColumnName("ViewCenterLat")
+                      .IsRequired();
 
-            owned.Property(v => v.Lng)
-                 .HasColumnName("ViewCenterLongitude")
-                 .IsRequired(); 
+                center.Property(c => c.Lng)
+                      .HasColumnName("ViewCenterLng")
+                      .IsRequired();
+            });
+            
+            view.Property(v => v.Zoom)
+                .HasColumnName("ViewZoom")
+                .IsRequired();
         });
 
-        table.HasOne(map => map.User)
+        modelBuilder.HasOne(map => map.User)
              .WithMany(user => user.Maps)
              .HasForeignKey(map => map.UserId)
              .OnDelete(DeleteBehavior.SetNull);

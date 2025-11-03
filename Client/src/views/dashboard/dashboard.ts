@@ -74,7 +74,7 @@ export function Dashboard(root: HTMLElement): void {
 
         if(!state.userId) {
             setRoute("/login");
-            alert("Please Login First");
+            setTimeout(() => alert("Inicie sesión primero"), 100);
             return;
         }
         
@@ -191,8 +191,8 @@ export function Dashboard(root: HTMLElement): void {
     }
     
     function handleMapDoubleClick(map: MapData): void {
-        State.set({mapId: map.id});
-        setRoute("/editor");
+        State.set({mapId: map.id, mapView: map.view});
+        setTimeout(() => setRoute("/editor"), 100);
     }
     
     function showMapDetails(map: MapData): void {
@@ -320,8 +320,6 @@ export function Dashboard(root: HTMLElement): void {
 
     async function handleRemoveMapFromFavorites(map: MapData): Promise<void> {
         try {
-            const userId = State.get().userId!
-            console.log(userId, map.id);
             await removeMapFromFavorites(State.get().userId!, map.id);
             map.isFavorite = false;
             displayMaps();

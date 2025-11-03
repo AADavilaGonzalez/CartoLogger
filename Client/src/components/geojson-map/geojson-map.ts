@@ -1,11 +1,10 @@
-import L, { type LeafletMouseEvent } from "leaflet";
+import L, { type LatLng, type LeafletMouseEvent } from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "./geojson-map.css";
 
 import type { MapMode, ActionMappings, ActionId } from "./mappings";
 import { EditPath } from "./edit-path";
 import { KeybindsToActionMappings } from "./mappings";
-import { type FeatureDto } from "@/api";
 
 type GeoJSONConvertibleLayer = L.Polygon | L.Polyline | L.Marker;
 
@@ -50,17 +49,36 @@ const keyboardHandlers: Record<ActionId, Action> = {
     },
 };
 
-type SelectionHandler = (newSelection: GeoJSONConvertibleLayer | null) => void;
+type SelectionHandler = (
+    newSelection: GeoJSONConvertibleLayer | null
+) => void;
+
 type SelectionChangeHandler = (
     oldSelection: GeoJSONConvertibleLayer | null,
     newSelection: GeoJSONConvertibleLayer | null,
 ) => void;
+
+type FeatureHandler = (
+    feature: GeoJSONFeature
+) => boolean | Promise<boolean>;
+
+type GeoJSONFeature = {
+    type: "Feature" | "FeatureCollection";
+    properties: any;
+    geometry: any;
+}
+
+type View = {
+    center: LatLng;
+    zoom: number;
+}
 
 export class HTMLGeoJSONMapElement extends HTMLElement {
     private map: L.Map;
     private features: L.GeoJSON;
     private editPath: EditPath;
     private actionMappings: ActionMappings;
+
     private _selectedFeature: GeoJSONConvertibleLayer | null;
 
     public get selectedFeature() {
@@ -74,9 +92,25 @@ export class HTMLGeoJSONMapElement extends HTMLElement {
         this._selectedFeature = feature;
     }
 
+    public get view(): View {
+        return {
+            center: this.map.getCenter(),
+            zoom: this.map.getZoom()
+        };
+    }
+
+    public set view(newView: Partial<View>) {
+        const mapView = this.view;
+        Object.assign(mapView, newView);
+        this.map.setView(mapView.center, mapView.zoom);
+    }
+
+    //API handlers
     public onSelection?: SelectionHandler;
     public onSelectionChange?: SelectionChangeHandler;
-
+    public onFeatureCreate?: FeatureHandler;
+    public onFeatureDelete?: FeatureHandler;
+    
     public mapMode: MapMode;
     public commitMode: CommitMode;
     private statusIndicator: HTMLElement;
@@ -127,42 +161,56 @@ export class HTMLGeoJSONMapElement extends HTMLElement {
         this.features.on("click", (e) => this.onFeatureClick(e));
     }
 
-    connectedCallback() {
-        this.map.invalidateSize();
-    }
-
-    loadFeatures(features: FeatureDto[]) {
-        for (const feature of features as any[]) {
-            feature.geojson.properties.id = feature.id;
+    connectedCallback() { this.map.invalidateSize(); }
+    
+    loadFeatures(features: GeoJSONFeature[]) {
+        for (const feature of features) {
             this.features.addData(feature);
         }
     }
 
-    deleteFeature() {
-        if (!this.selectedFeature) return;
-        this.features.removeLayer(this.selectedFeature);
-        this.selectedFeature = null;
-    }
+    undoPreviousEdit() { this.editPath.pop(); }
 
-    undoPreviousEdit() {
-        this.editPath.pop();
-    }
+    undoAllEdits() { this.editPath.clear(); }
 
-    undoAllEdits() {
-        this.editPath.clear();
-    }
-
-    commitFeature() {
+    async commitFeature() {
         if (this.editPath.isEmpty()) return;
+
         const commiter = commiters[this.commitMode];
         const layer = commiter(this.editPath);
-        this.features.addData(layer.toGeoJSON());
-        this.editPath.clear();
+        const feature = layer.toGeoJSON() as GeoJSONFeature;
+
+        let addFeature = true;
+        if(this.onFeatureCreate) {
+            const result =  this.onFeatureCreate(feature);
+            addFeature = result instanceof Promise ? await result : result;
+        }
+        
+        if(addFeature) {
+            this.features.addData(feature);
+            this.editPath.clear();
+        }
+    }
+
+    async deleteFeature() {
+        const featureLayer = this.selectedFeature;
+        if(!featureLayer) { return; }
+
+        let deleteFeature = true;
+        if(this.onFeatureDelete && featureLayer.feature) {
+            const result = this.onFeatureDelete(featureLayer.feature);
+            deleteFeature = result instanceof Promise ? await result : result;
+        }
+        
+        if(deleteFeature) {
+            this.features.removeLayer(featureLayer);
+            this._selectedFeature = null;
+        }
     }
 
     private keyboardHandler(e: KeyboardEvent) {
         const actionMapper = this.actionMappings[this.mapMode];
-        if (!(e.key in actionMapper)) return;
+        if(!(e.key in actionMapper)) return;
         const actionId = actionMapper[e.key];
         const action = keyboardHandlers[actionId];
         action(this);
@@ -220,8 +268,6 @@ export class HTMLGeoJSONMapElement extends HTMLElement {
 
 customElements.define("geojson-map", HTMLGeoJSONMapElement);
 
-export function GeoJsonMap(features: FeatureDto[]): HTMLGeoJSONMapElement {
-    const map = new HTMLGeoJSONMapElement();
-    map.loadFeatures(features);
-    return map;
+export function GeoJsonMap(): HTMLGeoJSONMapElement {
+    return new HTMLGeoJSONMapElement();
 }

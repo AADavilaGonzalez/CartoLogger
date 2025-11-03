@@ -1,6 +1,9 @@
+import type { View } from "./types";
+
 type AppState = {
     userId?: number;
     mapId?: number;
+    mapView?: View;
     username?: string;
 }
 

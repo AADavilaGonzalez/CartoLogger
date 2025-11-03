@@ -106,6 +106,8 @@ public class MapsController(IUnitOfWork unitOfWork) : CartoLoggerController
             }
             map.Description = req.Description;
         }
+        
+        if(req.View is not null) { map.View = req.View; }
 
         await _unitOfWork.SaveChangesAsync();
         return NoContent();
@@ -147,6 +149,7 @@ public class MapsController(IUnitOfWork unitOfWork) : CartoLoggerController
         {
             return MapNotFound(id);
         }
-        return Ok(await _unitOfWork.Maps.GetFeaturesById(id));
+        var features = await _unitOfWork.Maps.GetFeaturesById(id);
+        return Ok(features.Select(FeatureDto.FromFeature));
     }
 }

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using CartoLogger.Domain;
 using CartoLogger.Domain.Entities;
 using CartoLogger.WebApi.DTO;
+using System.Text.Json.Nodes;
 
 namespace CartoLogger.WebApi.Controllers;
 
@@ -15,7 +16,7 @@ public class FeaturesController(IUnitOfWork unitOfWork) : CartoLoggerController
     [HttpPost]
     public async Task<IActionResult> CreateFeature([FromBody] CreateFeatureRequest req )
     {
-        if(req.UserId is int userId && !await _unitOfWork.Features.Exists(userId))
+        if(req.UserId is int userId && !await _unitOfWork.Users.Exists(userId))
         {
             return UserNotFound(userId);
         }
@@ -56,10 +57,10 @@ public class FeaturesController(IUnitOfWork unitOfWork) : CartoLoggerController
         Feature? feature = await _unitOfWork.Features.GetById(id);
         if(feature is null) { return FeatureNotFound(id); }
 
-        feature.Type = FeatureGeoJson.GetTypeFromStr(req.GeoJson.Type);
+        feature.Type = GeoJsonFeature.GetTypeFromStr(req.GeoJson.Type);
         feature.Name = req.GeoJson.Properties.Name;
         feature.Description = req.GeoJson.Properties.Description;
-        feature.Geometry = req.GeoJson.Geometry;
+        feature.Geometry = req.GeoJson.Geometry.ToJsonString();
 
         await _unitOfWork.SaveChangesAsync();
         return NoContent();
@@ -75,7 +76,7 @@ public class FeaturesController(IUnitOfWork unitOfWork) : CartoLoggerController
         
         if(req.GeoJson?.Type is string type)
         {
-            feature.Type = FeatureGeoJson.GetTypeFromStr(type);
+            feature.Type = GeoJsonFeature.GetTypeFromStr(type);
         }
         if(req.GeoJson?.Properties?.Name is string name)
         {
@@ -84,8 +85,8 @@ public class FeaturesController(IUnitOfWork unitOfWork) : CartoLoggerController
         if(req.GeoJson?.Properties?.Description is string description) {
             feature.Description = description;
         }
-        if(req.GeoJson?.Geometry is string geometry) {
-            feature.Geometry = geometry;
+        if(req.GeoJson?.Geometry is JsonNode geometry) {
+            feature.Geometry = geometry.ToJsonString();
         }
 
         await _unitOfWork.SaveChangesAsync();

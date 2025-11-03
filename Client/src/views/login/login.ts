@@ -35,7 +35,6 @@ async function onLoginSubmit(formData: FormData): Promise<void> {
 }
 
 export function Login(root: HTMLElement): void {
-    console.log("login fired");
     root.innerHTML = html;
     const form = root.querySelector<HTMLFormElement>("#login-form");
     form?.addEventListener("submit", (e) => {

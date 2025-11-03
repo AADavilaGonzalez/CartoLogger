@@ -17,8 +17,8 @@ public class Feature : IEntity
     public required string Geometry {get; set;}
 
     public int? MapId {get; set;}
-    public Map? Map {get; init;}
+    public Map? Map {get; private set;}
 
     public int? UserId {get; set;}
-    public User? User {get; init;}
+    public User? User {get; private set;}
 }
